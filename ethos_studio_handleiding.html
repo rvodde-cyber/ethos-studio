@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ethos Studio — Handleiding / User Guide</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f4f3f0; --surface: #fff; --border: rgba(0,0,0,0.1);
+      --text: #1a1a1a; --muted: #6b6b6b;
+      --teal: #0F6E56; --teal-bg: #E1F5EE; --teal-border: #5DCAA5;
+      --blue: #185FA5; --blue-bg: #E6F1FB;
+      --amber-bg: #FAEEDA; --amber: #633806;
+      --radius: 12px;
+    }
+    body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    header { background: var(--teal); color: white; padding: 2rem; }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 4px; }
+    header p { font-size: 14px; opacity: 0.85; }
+    .lang-switch { display: flex; gap: 10px; margin-top: 1rem; }
+    .lang-btn { padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.4); background: transparent; color: white; cursor: pointer; font-family: 'Source Sans 3', sans-serif; font-size: 13px; transition: all 0.15s; }
+    .lang-btn.active { background: white; color: var(--teal); font-weight: 600; }
+
+    .container { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    .section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.75rem; margin-bottom: 1.5rem; }
+    .section-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--teal); color: white; font-size: 13px; font-weight: 700; margin-right: 10px; flex-shrink: 0; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; display: flex; align-items: center; margin-bottom: 1rem; }
+    p { font-size: 15px; line-height: 1.75; color: var(--text); margin-bottom: 0.75rem; }
+    p:last-child { margin-bottom: 0; }
+
+    .step-list { list-style: none; padding: 0; }
+    .step-list li { display: flex; gap: 14px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; line-height: 1.6; }
+    .step-list li:last-child { border-bottom: none; }
+    .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--blue-bg); color: var(--blue); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+
+    .note { background: var(--amber-bg); border-left: 3px solid #EF9F27; border-radius: 0 8px 8px 0; padding: 0.875rem 1rem; font-size: 14px; line-height: 1.6; color: var(--amber); margin-top: 1rem; }
+    .tip { background: var(--teal-bg); border-left: 3px solid var(--teal-border); border-radius: 0 8px 8px 0; padding: 0.875rem 1rem; font-size: 14px; line-height: 1.6; color: #04342C; margin-top: 1rem; }
+
+    .ctx-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 1rem; }
+    @media (max-width: 500px) { .ctx-grid { grid-template-columns: 1fr; } }
+    .ctx-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; }
+    .ctx-item strong { color: var(--teal); display: block; margin-bottom: 2px; }
+
+    .cost-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 13px; }
+    .cost-table th { background: var(--teal); color: white; padding: 8px 12px; text-align: left; }
+    .cost-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    .cost-table tr:last-child td { border-bottom: none; }
+
+    .lang-block { display: none; }
+    .lang-block.active { display: block; }
+
+    .divider { border: none; border-top: 2px solid var(--teal); margin: 2.5rem 0 1rem; opacity: 0.3; }
+    .lang-heading { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--teal); margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--teal-bg); }
+    a { color: var(--blue); }
+    code { background: #f0f0ee; padding: 2px 6px; border-radius: 4px; font-size: 13px; font-family: monospace; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Ethos Studio</h1>
+  <p id="header-sub">Handleiding &amp; User Guide</p>
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="setLang('nl')" id="btn-nl">🇳🇱 Nederlands</button>
+    <button class="lang-btn" onclick="setLang('en')" id="btn-en">🇬🇧 English</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ══════════════════ DUTCH ══════════════════ -->
+  <div class="lang-block active" id="block-nl">
+    <div class="lang-heading">Nederlandstalige handleiding</div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">1</span>Wat is Ethos Studio?</div>
+      <p>Ethos Studio is een tool voor het genereren van <strong>gesprekskaarten</strong> — korte, narratief geschreven casusbeschrijvingen die uitnodigen tot moreel beraad en ethische reflectie. De kaarten zijn ontworpen voor gebruik in het onderwijs, de zorgpraktijk en andere professionele settings.</p>
+      <p>De app werkt volledig in je browser — er is geen installatie nodig. Elke kaart bevat een verhaal (max. 150 woorden), een sluitende open vraag en twee vaste reflectievragen. Je kunt kaarten exporteren als PDF, klaar voor gebruik in de klas of op de werkvloer.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">2</span>De API-key: wat is het en hoe kom je eraan?</div>
+      <p>Ethos Studio gebruikt de AI van Anthropic (Claude) om kaarten te genereren. Hiervoor heb je een persoonlijke API-key nodig. Dit is een unieke code die jou identificeert als gebruiker van de Anthropic-dienst.</p>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><div>Ga naar <a href="https://console.anthropic.com" target="_blank"><strong>console.anthropic.com</strong></a> en maak een gratis account aan met je e-mailadres.</div></li>
+        <li><span class="step-num">2</span><div>Na inloggen ga je naar <strong>API Keys</strong> in het linkermenu. Klik op <strong>"Create Key"</strong>.</div></li>
+        <li><span class="step-num">3</span><div>Geef de key een naam (bijv. "Ethos Studio") en klik op <strong>Create</strong>. Kopieer de key — hij begint met <code>sk-ant-api03-...</code></div></li>
+        <li><span class="step-num">4</span><div>Plak de key in het gele invoerveld bovenaan de app en klik op <strong>Opslaan</strong>. De key wordt alleen voor deze sessie bewaard — bij een volgende keer openen moet je hem opnieuw invoeren.</div></li>
+      </ul>
+      <div class="note">⚠️ Deel je API-key nooit met anderen en bewaar hem niet in de HTML-code als je het bestand verspreidt. Elke gebruiker gebruikt zijn eigen key.</div>
+      <div class="tip">💡 Het aanmaken van een account is gratis. Je betaalt alleen voor gebruik: het genereren van één gesprekskaart kost ongeveer €0,01–0,02. Een batch van 10 kaarten kost dus minder dan 25 cent.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">3</span>Een kaart genereren: stap voor stap</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><div><strong>Kies een sector/context</strong> — selecteer de setting die past bij jouw doelgroep: Ziekenhuis, Zorg, Onderwijs, Defensie, Bedrijf, Welzijn, Overheid of Algemeen.</div></li>
+        <li><span class="step-num">2</span><div><strong>Kies een tab</strong> — "Één kaart" voor een enkele generatie, "Batch" voor meerdere kaarten tegelijk.</div></li>
+        <li><span class="step-num">3</span><div><strong>Omschrijf je casus in eigen woorden</strong> — typ in het tekstveld een situatie of dilemma in twee à drie zinnen. Dat kan heel rauw en schetsmatig: een naam, een rollenspel, een spanningsveld. Ethos Studio maakt er een volledig uitgeschreven, narratief verhaal van conform de kaartstructuur. De vier ingebouwde voorbeelden onderaan de pagina laten zien wat goede input kan zijn — maar die zijn ter inspiratie, niet verplicht.</div></li>
+        <li><span class="step-num">4</span><div><strong>Klik op Genereer</strong> — de app stuurt jouw omschrijving naar Claude en toont binnen enkele seconden een gegenereerde kaart met pakkende titel, verhaal, sluitende vraag en afbeeldingsprompt.</div></li>
+        <li><span class="step-num">5</span><div><strong>Exporteer of kopieer</strong> — gebruik "Exporteer PDF" voor een kant-en-klaar A4-document, of "Kopiëren" om de tekst elders te plakken.</div></li>
+      </ul>
+      <div class="tip">💡 Voorbeeldinvoer die goed werkt:<br><br>
+        <em>"Verpleegkundige ziet dat collega een medicatiefout maakt maar wil de werksfeer niet verstoren."</em><br><br>
+        <em>"Docent weet dat een student thuis in de problemen zit en twijfelt of hij een onvoldoende moet registreren."</em><br><br>
+        Kort, concreet, met een spanningsveld — de rest doet de app.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">4</span>Batch: meerdere kaarten tegelijk</div>
+      <p>Klik op de tab <strong>"Batch (meerdere)"</strong>. Voer meerdere onderwerpen in, één per regel. Maximum 15 kaarten per keer.</p>
+      <div class="tip">💡 Voorbeeldinvoer:<br><br>Een verpleegkundige die twijfelt of ze een fout moet melden<br>Een docent die een student betrapt op fraude<br>Een manager die moet bezuinigen op zijn eigen team</div>
+      <p style="margin-top:0.75rem">De app genereert de kaarten één voor één en toont een voortgangsbalk. Na afloop kun je alle kaarten in één klik als meerpagina-PDF exporteren.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">5</span>De afbeelding</div>
+      <p>Na het genereren van een kaart verschijnt er <strong>automatisch een passende afbeelding</strong> via Pollinations.ai — een gratis beeldgeneratiedienst. Je hoeft niets extra te doen.</p>
+      <p>Bevalt de afbeelding niet? Klik op <strong>↻ Andere afbeelding</strong> onder de foto voor een nieuwe variant op dezelfde prompt.</p>
+      <p>Elke kaart bevat ook een <strong>afbeeldingsprompt</strong> in het Engels. Voor hogere kwaliteit kun je deze kopiëren en plakken in Midjourney, DALL-E of <a href="https://www.bing.com/images/create" target="_blank">bing.com/images/create</a> (gratis).</p>
+      <div class="tip">💡 Bij het exporteren naar PDF wordt de geladen Pollinations-afbeelding automatisch meegenomen in het document.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">6</span>Taal wisselen</div>
+      <p>Gebruik de knoppen <strong>🇳🇱 NL</strong> en <strong>🇬🇧 EN</strong> rechtsboven in de app om te wisselen. De volledige interface én de gegenereerde kaarten komen in de gekozen taal. Je kunt ook de taal per kaart wisselen — genereer een Nederlandse batch en schakel dan naar Engels voor een volgende.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">7</span>Delen met collega's</div>
+      <p>Het bestand <code>ethos_studio.html</code> is volledig zelfstandig — je kunt het mailen of op een USB-stick meegeven. Elke collega opent het bestand in hun browser (Chrome, Firefox, Edge) en voert hun eigen API-key in.</p>
+      <div class="note">⚠️ Voor het gebruik is een internetverbinding vereist: de app communiceert met de Anthropic API en laadt lettertypen van Google Fonts.</div>
+    </div>
+  </div>
+
+  <hr class="divider"/>
+
+  <!-- ══════════════════ ENGLISH ══════════════════ -->
+  <div class="lang-block" id="block-en">
+    <div class="lang-heading">English User Guide</div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">1</span>What is Ethos Studio?</div>
+      <p>Ethos Studio is a tool for generating <strong>conversation cards</strong> — short, narratively written case descriptions that invite moral deliberation and ethical reflection. The cards are designed for use in education, healthcare practice and other professional settings.</p>
+      <p>The app runs entirely in your browser — no installation required. Each card contains a story (max. 150 words), a closing open question and two fixed reflection questions. Cards can be exported as PDF, ready for use in class or at work.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">2</span>The API key: what is it and how do you get one?</div>
+      <p>Ethos Studio uses Anthropic's AI (Claude) to generate cards. You need a personal API key — a unique code that identifies you as a user of the Anthropic service.</p>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><div>Go to <a href="https://console.anthropic.com" target="_blank"><strong>console.anthropic.com</strong></a> and create a free account with your email address.</div></li>
+        <li><span class="step-num">2</span><div>After logging in, go to <strong>API Keys</strong> in the left menu. Click <strong>"Create Key"</strong>.</div></li>
+        <li><span class="step-num">3</span><div>Give the key a name (e.g. "Ethos Studio") and click <strong>Create</strong>. Copy the key — it starts with <code>sk-ant-api03-...</code></div></li>
+        <li><span class="step-num">4</span><div>Paste the key into the yellow input field at the top of the app and click <strong>Save</strong>. The key is stored for this session only — you will need to re-enter it next time you open the app.</div></li>
+      </ul>
+      <div class="note">⚠️ Never share your API key with others and do not embed it in the HTML file if you distribute it. Each user uses their own key.</div>
+      <div class="tip">💡 Creating an account is free. You only pay for usage: generating one conversation card costs approximately €0.01–0.02. A batch of 10 cards therefore costs less than 25 cents.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">3</span>Generating a card: step by step</div>
+      <ul class="step-list">
+        <li><span class="step-num">1</span><div><strong>Choose a sector/context</strong> — select the setting that matches your audience: Hospital, Healthcare, Education, Defence, Business, Social Work, Government or General.</div></li>
+        <li><span class="step-num">2</span><div><strong>Choose a tab</strong> — "Single card" for one generation, "Batch" for multiple cards at once.</div></li>
+        <li><span class="step-num">3</span><div><strong>Describe your case in your own words</strong> — type a situation or dilemma in two or three sentences. It can be rough and sketchy: a name, a role, a tension. Ethos Studio turns it into a fully written, narrative story that follows the card structure. The four built-in examples at the bottom of the page show what good input looks like — but they are there for inspiration, not as a requirement.</div></li>
+        <li><span class="step-num">4</span><div><strong>Click Generate</strong> — the app sends your description to Claude and displays a generated card within seconds, including a punchy title, story, closing question and image prompt.</div></li>
+        <li><span class="step-num">5</span><div><strong>Export or copy</strong> — use "Export PDF" for a ready-to-use A4 document, or "Copy" to paste the text elsewhere.</div></li>
+      </ul>
+      <div class="tip">💡 Input that works well:<br><br>
+        <em>"A nurse sees a colleague make a medication error but doesn't want to damage the team atmosphere."</em><br><br>
+        <em>"A teacher knows a student is in trouble at home and is unsure whether to record a failing grade."</em><br><br>
+        Short, concrete, with a tension — the app does the rest.
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">4</span>Batch: multiple cards at once</div>
+      <p>Click the <strong>"Batch (multiple)"</strong> tab. Enter multiple topics, one per line. Maximum 15 cards per run.</p>
+      <div class="tip">💡 Example input:<br><br>A nurse who wonders whether to report a mistake<br>A teacher who catches a student cheating<br>A manager who must cut costs within their own team</div>
+      <p style="margin-top:0.75rem">The app generates cards one by one and shows a progress bar. Afterwards, you can export all cards in one click as a multi-page PDF.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">5</span>The image</div>
+      <p>After generating a card, a <strong>matching image appears automatically</strong> via Pollinations.ai — a free image generation service. No extra steps needed.</p>
+      <p>Not happy with the image? Click <strong>↻ Different image</strong> below the photo to generate a new variant using the same prompt.</p>
+      <p>Each card also includes an <strong>image prompt</strong> in English. For higher quality, copy it into Midjourney, DALL-E or <a href="https://www.bing.com/images/create" target="_blank">bing.com/images/create</a> (free).</p>
+      <div class="tip">💡 When exporting to PDF, the Pollinations image is automatically embedded in the document.</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">6</span>Switching language</div>
+      <p>Use the <strong>🇳🇱 NL</strong> and <strong>🇬🇧 EN</strong> buttons in the top right of the app to switch. The full interface and all generated cards will appear in the chosen language. You can also switch language per card — generate a Dutch batch, then switch to English for the next one.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">7</span>Sharing with colleagues</div>
+      <p>The file <code>ethos_studio.html</code> is fully self-contained — you can email it or put it on a USB drive. Each colleague opens the file in their browser (Chrome, Firefox, Edge) and enters their own API key.</p>
+      <div class="note">⚠️ An internet connection is required: the app communicates with the Anthropic API and loads fonts from Google Fonts.</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function setLang(l) {
+  document.getElementById('block-nl').className = 'lang-block' + (l === 'nl' ? ' active' : '');
+  document.getElementById('block-en').className = 'lang-block' + (l === 'en' ? ' active' : '');
+  document.getElementById('btn-nl').className = 'lang-btn' + (l === 'nl' ? ' active' : '');
+  document.getElementById('btn-en').className = 'lang-btn' + (l === 'en' ? ' active' : '');
+  document.getElementById('header-sub').textContent = l === 'nl' ? 'Handleiding & User Guide' : 'User Guide & Handleiding';
+}
+</script>
+</body>
+</html>

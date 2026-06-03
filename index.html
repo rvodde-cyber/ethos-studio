@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ethos Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f4f3f0; --surface: #ffffff; --border: rgba(0,0,0,0.1);
+      --text: #1a1a1a; --text-muted: #6b6b6b;
+      --teal: #0F6E56; --teal-bg: #E1F5EE; --teal-border: #5DCAA5;
+      --blue: #185FA5; --blue-bg: #E6F1FB;
+      --amber-bg: #FAEEDA; --amber: #633806;
+      --radius: 12px; --radius-sm: 8px;
+    }
+    body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* HEADER */
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1.25rem 2rem; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; }
+    .logo { width: 36px; height: 36px; border-radius: 8px; background: #0F6E56; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .logo svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2; }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 600; }
+    header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+    .lang-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: #f8f8f6; font-family: 'Source Sans 3', sans-serif; font-size: 13px; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
+    .lang-btn.active { background: var(--teal); border-color: var(--teal); color: white; font-weight: 600; }
+    .help-link { font-size: 12px; color: var(--blue); text-decoration: none; padding: 5px 10px; border-radius: 20px; border: 1px solid var(--blue-bg); background: var(--blue-bg); }
+    .help-link:hover { background: #d0e8f8; }
+
+    /* API BANNER */
+    .api-banner { background: #FAEEDA; border-bottom: 1px solid #EF9F27; padding: 10px 2rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .api-banner label { font-size: 13px; font-weight: 500; color: #633806; white-space: nowrap; }
+    .api-banner input { flex: 1; min-width: 260px; padding: 6px 10px; font-size: 13px; border: 1px solid #EF9F27; border-radius: 6px; background: white; color: #1a1a1a; font-family: monospace; }
+    .api-banner button { padding: 6px 14px; font-size: 13px; border-radius: 6px; background: #633806; color: white; border: none; cursor: pointer; font-family: 'Source Sans 3', sans-serif; }
+    .api-banner .saved { color: var(--teal); font-size: 13px; font-weight: 500; display: none; }
+    .api-banner .api-hint { font-size: 12px; color: #633806; }
+    .api-banner .api-hint a { color: #633806; }
+
+    /* LAYOUT */
+    .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    /* PANEL */
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .panel-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 1rem; }
+
+    /* CONTEXT SELECTOR */
+    .ctx-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px; }
+    .ctx-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 1rem; }
+    @media (max-width: 600px) { .ctx-grid { grid-template-columns: repeat(2,1fr); } }
+    .ctx-btn { padding: 8px 6px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #f8f8f6; font-family: 'Source Sans 3', sans-serif; font-size: 12px; cursor: pointer; color: var(--text-muted); text-align: center; transition: all 0.15s; line-height: 1.3; }
+    .ctx-btn:hover { background: var(--surface); border-color: rgba(0,0,0,0.2); }
+    .ctx-btn.active { background: var(--teal-bg); border-color: var(--teal-border); color: #04342C; font-weight: 600; }
+
+    /* TABS */
+    .tab-row { display: flex; gap: 4px; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 8px 16px; font-size: 13px; font-weight: 500; border: none; background: none; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; font-family: 'Source Sans 3', sans-serif; margin-bottom: -1px; transition: all 0.15s; }
+    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* CASE BUTTONS */
+    .cases-grid { display: grid; gap: 6px; }
+    .case-btn { width: 100%; text-align: left; background: #f8f8f6; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; cursor: pointer; font-family: 'Source Sans 3', sans-serif; font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 10px; transition: all 0.15s; }
+    .case-btn:hover { background: var(--surface); border-color: rgba(0,0,0,0.2); }
+    .case-btn.active { background: var(--teal-bg); border-color: var(--teal-border); color: #04342C; }
+    .case-num { width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.07); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .case-btn.active .case-num { background: var(--teal); color: white; }
+
+    /* CUSTOM / BATCH INPUT */
+    #custom-wrap { display: none; margin-top: 1rem; }
+    textarea { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: var(--text); background: var(--surface); resize: vertical; min-height: 80px; }
+    textarea:focus { outline: none; border-color: var(--blue); }
+    #batch-input { min-height: 160px; font-size: 13px; }
+    .batch-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; }
+
+    /* GENERATE BUTTON */
+    .gen-btn { width: 100%; margin-top: 1rem; padding: 12px; background: var(--blue); color: white; border: none; border-radius: var(--radius-sm); font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .gen-btn:hover { background: #0C447C; }
+    .gen-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* LOADING */
+    .loading { display: none; text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
+    .loading.show { display: block; }
+    .dots { display: inline-flex; gap: 4px; margin-bottom: 8px; }
+    .dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); animation: dp 1.2s ease-in-out infinite; }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dp { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+
+    /* RESULT CARD */
+    .result { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.25rem; }
+    .result.show { display: block; }
+    .result-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .result-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+    .ctx-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; background: var(--teal-bg); color: var(--teal); }
+    .result-body { padding: 1.5rem; }
+    .result-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; margin-bottom: 1rem; line-height: 1.3; }
+    .result-story { font-size: 15px; line-height: 1.8; margin-bottom: 1.25rem; }
+    .result-question { font-family: 'Playfair Display', serif; font-style: italic; font-size: 16px; color: var(--blue); padding: 1rem 1.25rem; background: var(--blue-bg); border-left: 3px solid #85B7EB; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; line-height: 1.5; margin-bottom: 1rem; }
+    .fixed-questions { background: var(--teal-bg); border-left: 3px solid var(--teal); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 0.75rem 1rem; margin-top: 0.75rem; }
+    .fixed-q { font-size: 14px; font-weight: 600; color: var(--teal); padding: 3px 0; }
+    .img-area { width: 100%; min-height: 260px; background: #f4f3f0; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-muted); font-size: 13px; margin: 1rem 0; border: 1px dashed var(--border); overflow: hidden; position: relative; }
+    .img-area svg { width: 32px; height: 32px; opacity: 0.4; }
+    .img-area img { width: 100%; max-height: 340px; object-fit: cover; border-radius: var(--radius-sm); display: block; }
+    .img-skeleton { width: 100%; height: 260px; background: linear-gradient(90deg, #ececea 25%, #f4f3f0 50%, #ececea 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: var(--radius-sm); }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .img-actions { display: flex; gap: 6px; margin-top: 6px; }
+    .img-refresh-btn { font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); cursor: pointer; color: var(--text-muted); font-family: 'Source Sans 3', sans-serif; transition: all 0.15s; }
+    .img-refresh-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .img-prompt-wrap { margin-top: 0.5rem; }
+    .img-prompt-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 6px; }
+    .img-prompt-box { font-size: 12px; color: var(--text-muted); line-height: 1.6; padding: 10px 12px; background: #f4f3f0; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+
+    /* ACTION BUTTONS */
+    .action-row { display: flex; gap: 8px; padding: 0 1.5rem 1.5rem; flex-wrap: wrap; }
+    .act-btn { flex: 1; min-width: 100px; padding: 9px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; font-family: 'Source Sans 3', sans-serif; font-size: 13px; cursor: pointer; color: var(--text); transition: all 0.15s; }
+    .act-btn:hover { background: #f4f3f0; }
+
+    /* BATCH */
+    .batch-progress { display: none; margin-top: 1rem; }
+    .batch-progress.show { display: block; }
+    .progress-bar-wrap { background: #f0f0ee; border-radius: 4px; height: 6px; margin: 8px 0; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--teal); border-radius: 4px; transition: width 0.3s; width: 0%; }
+    .progress-text { font-size: 12px; color: var(--text-muted); }
+    .batch-results { margin-top: 1rem; display: grid; gap: 0.75rem; }
+    .batch-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; }
+    .batch-card-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+    .batch-card-story { font-size: 13px; line-height: 1.7; color: var(--text); margin-bottom: 0.5rem; }
+    .batch-card-q { font-size: 13px; font-style: italic; color: var(--blue); margin-bottom: 0.5rem; }
+    .batch-card-status { font-size: 11px; color: var(--text-muted); }
+    .batch-export-row { display: flex; gap: 8px; margin-top: 1rem; }
+
+    /* EXISTING CASES */
+    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden; }
+    .ex-header { padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .ex-header:hover { background: #fafaf8; }
+    .ex-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; }
+    .ex-arrow { font-size: 14px; color: var(--text-muted); transition: transform 0.2s; }
+    .ex-card.open .ex-arrow { transform: rotate(180deg); }
+    .ex-body { display: none; padding: 0 1.25rem 1.25rem; }
+    .ex-card.open .ex-body { display: block; }
+    .ex-text { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 0.75rem; }
+    .ex-q { font-family: 'Playfair Display', serif; font-style: italic; font-size: 14px; color: var(--blue); padding: 0.75rem 1rem; background: var(--blue-bg); border-left: 2px solid #85B7EB; border-radius: 0 6px 6px 0; margin-bottom: 0.75rem; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #f4f3f0; color: var(--text-muted); border: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+  </div>
+  <div>
+    <h1>Ethos Studio</h1>
+    <p data-i18n="subtitle">Moreel beraad · Ethisch leren</p>
+  </div>
+  <div class="header-right">
+    <a class="help-link" href="ethos_studio_handleiding.html" target="_blank" data-i18n="help">? Handleiding</a>
+    <button class="lang-btn active" id="lang-nl" onclick="setLang('nl')">🇳🇱 NL</button>
+    <button class="lang-btn" id="lang-en" onclick="setLang('en')">🇬🇧 EN</button>
+  </div>
+</header>
+
+<div class="api-banner">
+  <label for="api-input" data-i18n="apiLabel">🔑 Anthropic API-key:</label>
+  <input type="password" id="api-input" placeholder="sk-ant-api03-..." autocomplete="off"/>
+  <button onclick="saveKey()" data-i18n="apiSave">Opslaan</button>
+  <span class="saved" id="key-saved" data-i18n="apiSaved">✓ Opgeslagen voor deze sessie</span>
+  <span class="api-hint"><span data-i18n="apiHint">Geen key? Maak gratis een account aan op</span> <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></span>
+</div>
+
+<div class="container">
+
+  <div class="panel">
+    <div class="panel-title" data-i18n="panelTitle">Nieuwe kaart(en) genereren</div>
+
+    <div class="ctx-label" data-i18n="ctxLabel">Sector / context</div>
+    <div class="ctx-grid">
+      <button class="ctx-btn active" id="ctx-hospital" onclick="setCtx('hospital')">🏥 <span data-i18n="ctx_hospital">Ziekenhuis</span></button>
+      <button class="ctx-btn" id="ctx-care" onclick="setCtx('care')">💊 <span data-i18n="ctx_care">Zorg (algemeen)</span></button>
+      <button class="ctx-btn" id="ctx-education" onclick="setCtx('education')">🎓 <span data-i18n="ctx_education">Onderwijs</span></button>
+      <button class="ctx-btn" id="ctx-defence" onclick="setCtx('defence')">🪖 <span data-i18n="ctx_defence">Defensie</span></button>
+      <button class="ctx-btn" id="ctx-business" onclick="setCtx('business')">💼 <span data-i18n="ctx_business">Bedrijf</span></button>
+      <button class="ctx-btn" id="ctx-welfare" onclick="setCtx('welfare')">🤝 <span data-i18n="ctx_welfare">Welzijn</span></button>
+      <button class="ctx-btn" id="ctx-government" onclick="setCtx('government')">🏛️ <span data-i18n="ctx_government">Overheid</span></button>
+      <button class="ctx-btn" id="ctx-general" onclick="setCtx('general')">🌍 <span data-i18n="ctx_general">Algemeen</span></button>
+    </div>
+
+    <div class="tab-row">
+      <button class="tab-btn active" id="tab-single-btn" onclick="switchTab('single')" data-i18n="tabSingle">Één kaart</button>
+      <button class="tab-btn" id="tab-batch-btn" onclick="switchTab('batch')" data-i18n="tabBatch">Batch (meerdere)</button>
+    </div>
+
+    <div class="tab-pane active" id="tab-single">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;line-height:1.6" data-i18n="singleIntro">Omschrijf je eigen situatie hieronder, of gebruik een van de voorbeeldcasussen als startpunt.</p>
+      <div class="cases-grid" id="cases-grid"></div>
+      <div id="custom-wrap">
+        <textarea id="custom-topic" data-i18n-placeholder="customPlaceholder"></textarea>
+      </div>
+      <button class="gen-btn" id="gen-btn" onclick="generate()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span data-i18n="genBtn">Genereer gesprekskaart</span>
+      </button>
+    </div>
+
+    <div class="tab-pane" id="tab-batch">
+      <p class="batch-hint" data-i18n="batchHint">Voer meerdere onderwerpen in — één per regel. De app genereert voor elk onderwerp een volledige kaart en bundelt alles als PDF.</p>
+      <textarea id="batch-input" data-i18n-placeholder="batchPlaceholder"></textarea>
+      <button class="gen-btn" id="batch-btn" onclick="generateBatch()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+        <span data-i18n="batchBtn">Genereer alle kaarten</span>
+      </button>
+      <div class="batch-progress" id="batch-progress">
+        <div class="progress-text" id="progress-text"></div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+      </div>
+      <div class="batch-results" id="batch-results"></div>
+      <div class="batch-export-row" id="batch-export-row" style="display:none">
+        <button class="act-btn" onclick="exportBatchPDF()" data-i18n="exportAllPdf">📄 Exporteer alle als PDF</button>
+        <button class="act-btn" onclick="clearBatch()" data-i18n="clearBatch">Wissen ✕</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="dots"><span></span><span></span><span></span></div>
+    <div data-i18n="generating">Kaart wordt gegenereerd...</div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-header">
+      <span class="result-label" data-i18n="resultLabel">Gesprekskaart</span>
+      <span class="ctx-tag" id="ctx-tag"></span>
+    </div>
+    <div class="result-body">
+      <div class="img-area" id="img-area">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+        <span data-i18n="imgPlaceholder">Afbeelding wordt geladen na generatie...</span>
+      </div>
+      <div class="img-actions" id="img-actions" style="display:none">
+        <button class="img-refresh-btn" onclick="regenerateImage()" data-i18n="imgRefresh">↻ Andere afbeelding</button>
+        <span style="font-size:11px;color:var(--text-muted);align-self:center" data-i18n="imgCredit">via Pollinations.ai</span>
+      </div>
+      <div class="result-title" id="r-title"></div>
+      <div class="result-story" id="r-story"></div>
+      <div class="result-question" id="r-question"></div>
+      <div class="fixed-questions">
+        <div class="fixed-q" data-i18n="fq1">Wat zou jij doen en waarom?</div>
+        <div class="fixed-q" data-i18n="fq2">Welke waarden zijn hier in het spel?</div>
+      </div>
+      <div class="img-prompt-wrap" id="img-prompt-wrap" style="display:none">
+        <div class="img-prompt-label" data-i18n="promptLabel">Afbeeldingsprompt (voor Midjourney / DALL-E)</div>
+        <div class="img-prompt-box" id="img-prompt-box"></div>
+      </div>
+    </div>
+    <div class="action-row">
+      <button class="act-btn" onclick="copyCard()" data-i18n="copy">Kopiëren</button>
+      <button class="act-btn" onclick="exportPDF()" data-i18n="exportPdf">📄 Exporteer PDF</button>
+      <button class="act-btn" onclick="generate()" data-i18n="regenerate">Opnieuw ↺</button>
+    </div>
+  </div>
+
+  <div style="margin-top:2rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+      <div class="section-label" data-i18n="existingLabel">Bestaande casuïstiek</div>
+      <button class="act-btn" style="width:auto;padding:6px 14px;font-size:12px" onclick="exportAllPDF()" data-i18n="exportAllPdf">📄 Exporteer alle als PDF</button>
+    </div>
+    <div id="existing"></div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// TRANSLATIONS
+// ═══════════════════════════════════════════════════════════════════
+const T = {
+  nl: {
+    subtitle: 'Moreel beraad · Ethisch leren',
+    help: '? Handleiding',
+    apiLabel: '🔑 Anthropic API-key:',
+    apiSave: 'Opslaan',
+    apiSaved: '✓ Opgeslagen voor deze sessie',
+    apiHint: 'Geen key? Maak gratis een account aan op',
+    panelTitle: 'Nieuwe kaart(en) genereren',
+    ctxLabel: 'Sector / context',
+    ctx_hospital: 'Ziekenhuis', ctx_care: 'Zorg (algemeen)', ctx_education: 'Onderwijs',
+    ctx_defence: 'Defensie', ctx_business: 'Bedrijf', ctx_welfare: 'Welzijn',
+    ctx_government: 'Overheid', ctx_general: 'Algemeen',
+    tabSingle: 'Één kaart', tabBatch: 'Batch (meerdere)',
+    customPlaceholder: 'Omschrijf de situatie in 2–3 zinnen. Bijv.: "Een verpleegkundige ziet dat haar collega een fout maakt maar wil de sfeer niet verstoren." De app schrijft er een volledig verhaal van.',
+    genBtn: 'Genereer gesprekskaart',
+    batchHint: 'Voer meerdere onderwerpen in — één per regel. De app genereert voor elk onderwerp een volledige kaart en bundelt alles als PDF.',
+    batchPlaceholder: 'Bijv.:\nEen verpleegkundige die twijfelt of ze een fout moet melden\nEen docent die een student betrapt op fraude\nEen manager die moet bezuinigen op zijn eigen team',
+    batchBtn: 'Genereer alle kaarten',
+    exportAllPdf: '📄 Exporteer alle als PDF',
+    clearBatch: 'Wissen ✕',
+    generating: 'Kaart wordt gegenereerd...',
+    batchProgress: (i, n) => `Kaart ${i} van ${n} wordt gegenereerd...`,
+    batchDone: (ok, n) => `✓ ${ok} van ${n} kaarten gegenereerd.`,
+    batchGenerated: '✓ Gegenereerd',
+    resultLabel: 'Gesprekskaart',
+    imgPlaceholder: 'Afbeelding verschijnt automatisch na generatie...',
+    imgRefresh: '↻ Andere afbeelding',
+    imgCredit: 'via Pollinations.ai (gratis)',
+    promptLabel: 'Afbeeldingsprompt (voor Midjourney / DALL-E — hogere kwaliteit)',
+    fq1: 'Wat zou jij doen en waarom?',
+    fq2: 'Welke waarden zijn hier in het spel?',
+    promptLabel: 'Afbeeldingsprompt (voor Midjourney / DALL-E)',
+    copy: 'Kopiëren', exportPdf: '📄 Exporteer PDF', regenerate: 'Opnieuw ↺',
+    existingLabel: 'Voorbeeldcasussen (ter inspiratie)',
+    ownTopic: 'Eigen situatie omschrijven...',
+    singleIntro: 'Omschrijf je eigen situatie in 2–3 zinnen. De app schrijft er een volledig verhaal van. Gebruik de voorbeelden hieronder alleen als inspiratie.',
+    alertKey: 'Voer eerst je Anthropic API-key in bovenaan de pagina.',
+    alertEmpty: 'Voer minimaal één onderwerp in.',
+    alertMax: 'Maximum 15 kaarten per batch.',
+    alertNoCards: 'Geen kaarten om te exporteren.',
+    alertNoCard: 'Genereer eerst een gesprekskaart.',
+    copied: '✓ Gekopieerd',
+    pdfHeader: 'GESPREKSKAART',
+    pdfFooter: 'Ethos Studio · Conversation Cards v2.0',
+    pdfImgText: 'Voeg hier een afbeelding in',
+    pdfImgSub: '(Midjourney · DALL-E · stockfoto)',
+  },
+  en: {
+    subtitle: 'Moral deliberation · Ethical learning',
+    help: '? User guide',
+    apiLabel: '🔑 Anthropic API key:',
+    apiSave: 'Save',
+    apiSaved: '✓ Saved for this session',
+    apiHint: 'No key? Create a free account at',
+    panelTitle: 'Generate card(s)',
+    ctxLabel: 'Sector / context',
+    ctx_hospital: 'Hospital', ctx_care: 'Healthcare', ctx_education: 'Education',
+    ctx_defence: 'Defence', ctx_business: 'Business', ctx_welfare: 'Social work',
+    ctx_government: 'Government', ctx_general: 'General',
+    tabSingle: 'Single card', tabBatch: 'Batch (multiple)',
+    customPlaceholder: 'Describe the situation in 2–3 sentences. E.g.: "A nurse sees her colleague make a mistake but does not want to damage the team atmosphere." The app turns it into a full story.',
+    genBtn: 'Generate conversation card',
+    batchHint: 'Enter multiple topics — one per line. The app generates a full card for each topic and bundles them as a PDF.',
+    batchPlaceholder: 'E.g.:\nA nurse who wonders whether to report a mistake\nA teacher who catches a student cheating\nA manager who must cut costs within their own team',
+    batchBtn: 'Generate all cards',
+    exportAllPdf: '📄 Export all as PDF',
+    clearBatch: 'Clear ✕',
+    generating: 'Generating card...',
+    batchProgress: (i, n) => `Generating card ${i} of ${n}...`,
+    batchDone: (ok, n) => `✓ ${ok} of ${n} cards generated.`,
+    batchGenerated: '✓ Generated',
+    resultLabel: 'Conversation card',
+    imgPlaceholder: 'Image appears automatically after generation...',
+    imgRefresh: '↻ Different image',
+    imgCredit: 'via Pollinations.ai (free)',
+    promptLabel: 'Image prompt (for Midjourney / DALL-E — higher quality)',
+    fq1: 'What would you do and why?',
+    fq2: 'What values are at stake here?',
+    promptLabel: 'Image prompt (for Midjourney / DALL-E)',
+    copy: 'Copy', exportPdf: '📄 Export PDF', regenerate: 'Regenerate ↺',
+    existingLabel: 'Example cases (for inspiration)',
+    ownTopic: 'Describe your own situation...',
+    singleIntro: 'Describe your own situation in 2–3 sentences. The app writes a full story from it. Use the examples below for inspiration only.',
+    alertKey: 'Please enter your Anthropic API key at the top of the page first.',
+    alertEmpty: 'Please enter at least one topic.',
+    alertMax: 'Maximum 15 cards per batch.',
+    alertNoCards: 'No cards to export.',
+    alertNoCard: 'Please generate a card first.',
+    copied: '✓ Copied',
+    pdfHeader: 'CONVERSATION CARD',
+    pdfFooter: 'Ethos Studio · Conversation Cards v2.0',
+    pdfImgText: 'Insert an image here',
+    pdfImgSub: '(Midjourney · DALL-E · stock photo)',
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// CONTEXT DESCRIPTIONS (for prompt — always in target language)
+// ═══════════════════════════════════════════════════════════════════
+const CTX_DESC = {
+  nl: {
+    hospital:   'moderne Nederlandse ziekenhuisomgeving, professionele zorgverleners (verpleegkundige, arts, specialist)',
+    care:       'zorginstelling: GGZ, VVT, huisartsenpraktijk of thuiszorg, zorgprofessionals centraal',
+    education:  'school- of universitaire setting, rollen: docent, student, teamleider, ouder',
+    defence:    'militaire of civiele defensieomgeving, rollen: commandant, militair, burger — hiërarchie en veiligheid centraal',
+    business:   'kantoor- of organisatiesetting, rollen: medewerker, leidinggevende, HR, klant',
+    welfare:    'maatschappelijke dienstverlening, jeugdzorg of sociale wijkteams, kwetsbare doelgroepen',
+    government: 'publieke sector, gemeente of uitvoeringsorganisatie — verantwoording en integriteit centraal',
+    general:    'neutrale alledaagse setting (thuis, straat, buurt) zonder sectorspecifieke context'
+  },
+  en: {
+    hospital:   'modern hospital environment, professional healthcare workers (nurse, doctor, specialist)',
+    care:       'healthcare setting: mental health, elderly care, GP practice or home care, healthcare professionals central',
+    education:  'school or university setting, roles: teacher, student, team leader, parent',
+    defence:    'military or civilian defence environment, roles: commander, soldier, civilian — hierarchy and safety central',
+    business:   'office or organisational setting, roles: employee, manager, HR, client',
+    welfare:    'social services, youth care or community welfare teams, vulnerable populations',
+    government: 'public sector, municipality or government agency — accountability and integrity central',
+    general:    'neutral everyday setting (home, street, neighbourhood), no sector-specific context'
+  }
+};
+
+const CTX_IMG = {
+  hospital:   'modern hospital interior, warm clinical light, professional healthcare workers, cinematic depth of field',
+  care:       'Dutch care home or community health setting, warm light, compassionate caregiver, cinematic photography',
+  education:  'university or school classroom, natural light, students and teacher in discussion, cinematic depth of field',
+  defence:    'military setting, disciplined atmosphere, uniformed personnel, dramatic cinematic lighting',
+  business:   'modern office environment, professional colleagues in discussion, natural light, cinematic depth of field',
+  welfare:    'social work setting, community centre or youth care facility, warm empathetic atmosphere, cinematic photography',
+  government: 'government office or municipal building, formal professional setting, natural light, cinematic photography',
+  general:    'everyday neutral setting, street or home, authentic human moment, cinematic lighting'
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// CASE DATA (bilingual)
+// ═══════════════════════════════════════════════════════════════════
+const CASES = {
+  nl: [
+    { title: 'De gebroken heup en de kwetsbare wil', text: 'Meneer Hendriks (90) ligt in de witte lakens van kamer 12. Hij is gisteren gevallen; een gebroken heup. Hoewel de dementie langzaam de regie overneemt, is hij vandaag helder. "Ik wil weer lopen, zuster," zegt hij vastberaden. Zijn kinderen staan om het bed. "Vader moet geopereerd worden," zegt zijn zoon, "we laten hem toch niet zo liggen?" De verpleegkundige ziet echter de enorme risico\'s: de kans op een delier, de zware revalidatie die hij waarschijnlijk niet aan kan, en het risico dat hij na de narcose nooit meer de oude wordt. De orthopeed twijfelt; is opereren hier nog wel menswaardig?', question: 'Wat vind jij hier Passende Zorg — en wie heeft hier het laatste woord?', values: ['Autonomie','Menswaardige zorg','Medische proportionaliteit','Familie & mantelzorg'] },
+    { title: 'De grens van de pomp', text: 'Op kamer 4 ligt mevrouw Jansen (82). Het is stil, op het zachte gezoem van de morfinepomp na. Ze ademt rustig, haar gezicht oogt ontspannen. Maar voor haar kinderen, die al drie nachten waken, is de rek eruit. "Kan de pomp niet omhoog?" vraagt haar dochter met betraande ogen. "Ze is op, wij zijn op. Laat het alsjeblieft klaar zijn." De verpleegkundige controleert de vitale functies en de pijnscore; mevrouw ligt er comfortabel bij. Het ophogen van de morfine zonder medische noodzaak grenst aan euthanasie, iets wat niet de bedoeling is van palliatieve sedatie.', question: 'Wiens lijden weegt het zwaarst — en wie beslist dat?', values: ['Palliatieve zorg','Euthanasie vs sedatie','Familiebelangen','Professionele standaard'] },
+    { title: 'De rek is eruit', text: 'Het is 10:00 uur en de gang van de afdeling voelt als een snelweg. Eén verpleegkundige loopt voor zes patiënten, terwijl de buurafdeling een ratio van één op vier heeft. De geplande douchebeurten zijn alweer geschrapt. "Ik voel me een fabriekswerker," verzucht een collega. Dan komt het bericht: de bezetting op een andere afdeling is kritiek, er moet iemand worden afgestaan. Juist nu het team hoopte op een moment om eindelijk die ene eenzame patiënt te scheren of een echt gesprek te voeren.', question: 'Waar leg jij de grens — en wanneer wordt solidariteit zelfopoffering?', values: ['Kwaliteit van zorg','Solidariteit','Werkdruk','Teamwelzijn'] },
+    { title: 'Het niet-pluis gevoel in de nacht', text: '03:15 uur. De lichten op de gang zijn gedimd, maar bij patiënt Bakker klopt er iets niet. Hij is onrustig, klam, en zijn hartslag vertoont grillige pieken. De verpleegkundige vertrouwt het niet; dit is cardiaal. Ze belt de dienstdoende, de hoofdbehandelaar. De reactie aan de andere kant van de lijn is kortaf: "Bel de cardioloog maar direct, daar ga ik niet over." Volgens protocol moet de hoofdbehandelaar de consulten regelen. Elke minuut telt.', question: 'Wanneer is het doorbreken van hiërarchie een plicht in plaats van een keuze?', values: ['Patiëntveiligheid','Hiërarchie & protocol','Professionele autonomie','Samenwerking'] }
+  ],
+  en: [
+    { title: 'The broken hip and the fragile will', text: 'Mr Hendriks (90) lies in the white sheets of room 12. He fell yesterday — a broken hip. Although dementia is slowly taking over, he is lucid today. "I want to walk again, nurse," he says firmly. His children stand around the bed. "Dad needs surgery," says his son, "we can\'t just leave him like this." But the nurse sees enormous risks: the chance of delirium, the heavy rehabilitation he probably cannot handle, and the risk that he may never recover after anaesthesia. The orthopaedic surgeon hesitates: is surgery still humane here?', question: 'What do you consider appropriate care here — and who has the final say?', values: ['Autonomy','Dignified care','Medical proportionality','Family & carers'] },
+    { title: 'The limit of the pump', text: 'Mrs Jansen (82) lies in room 4. The only sound is the soft hum of the morphine pump. She breathes quietly, her face looks at peace. But her children, who have been keeping vigil for three nights, have reached their limit. "Can\'t the pump go up?" asks her daughter through tears. "She is done, we are done. Please let it end." The nurse checks the vital signs and pain score: Mrs Jansen is comfortable. Increasing the morphine without medical necessity borders on euthanasia — not the intention of palliative sedation.', question: 'Whose suffering weighs heaviest — and who decides that?', values: ['Palliative care','Euthanasia vs sedation','Family interests','Professional standards'] },
+    { title: 'At the breaking point', text: 'It is 10:00 and the ward corridor feels like a motorway. One nurse is caring for six patients while the neighbouring ward has a ratio of one to four. The planned showers have been cancelled again. "I feel like a factory worker," sighs a colleague. Then the message arrives: staffing on another ward is critical and someone must be transferred. Just as the team had hoped to finally shave that lonely patient or have a real conversation.', question: 'Where do you draw the line — and when does solidarity become self-sacrifice?', values: ['Quality of care','Solidarity','Workload','Team wellbeing'] },
+    { title: 'The uneasy feeling in the night', text: '03:15. The corridor lights are dimmed, but something is wrong with patient Bakker. He is restless, clammy, his heart rate shows erratic peaks. The nurse\'s instinct says: this is cardiac. She calls the on-call consultant. The response is curt: "Call the cardiologist directly, that\'s not my domain." Yet protocol requires the consultant to arrange referrals, not the nurse managing the entire ward in the middle of the night. Every minute counts.', question: 'When does breaking the hierarchy become a duty rather than a choice?', values: ['Patient safety','Hierarchy & protocol','Professional autonomy','Collaboration'] }
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+let lang = 'nl';
+let apiKey = '';
+let ctx = 'hospital';
+let selectedCase = 0;
+let lastCard = null;
+let batchCards = [];
+
+// ═══════════════════════════════════════════════════════════════════
+// i18n
+// ═══════════════════════════════════════════════════════════════════
+function t(key) { return T[lang][key] || key; }
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (T[lang][key] !== undefined) el.textContent = T[lang][key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (T[lang][key] !== undefined) el.placeholder = T[lang][key];
+  });
+  document.getElementById('lang-nl').className = 'lang-btn' + (lang === 'nl' ? ' active' : '');
+  document.getElementById('lang-en').className = 'lang-btn' + (lang === 'en' ? ' active' : '');
+  document.documentElement.lang = lang;
+  renderCaseButtons();
+  renderExisting();
+}
+
+function setLang(l) {
+  lang = l;
+  applyTranslations();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// API KEY
+// ═══════════════════════════════════════════════════════════════════
+function saveKey() {
+  apiKey = document.getElementById('api-input').value.trim();
+  if (apiKey) {
+    document.getElementById('key-saved').style.display = 'inline';
+    setTimeout(() => document.getElementById('key-saved').style.display = 'none', 3000);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONTEXT
+// ═══════════════════════════════════════════════════════════════════
+function setCtx(c) {
+  ctx = c;
+  document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('ctx-' + c).classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab + '-btn').classList.add('active');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CASE SELECTION
+// ═══════════════════════════════════════════════════════════════════
+function renderCaseButtons() {
+  const cases = CASES[lang];
+  const grid = document.getElementById('cases-grid');
+  grid.innerHTML = cases.map((c, i) => `
+    <button class="case-btn${i === selectedCase ? ' active' : ''}" onclick="pick(${i},this)">
+      <span class="case-num">${i + 1}</span>${c.title}
+    </button>
+  `).join('') + `
+    <button class="case-btn${selectedCase === cases.length ? ' active' : ''}" onclick="pick(${cases.length},this)">
+      <span class="case-num">+</span><span>${t('ownTopic')}</span>
+    </button>`;
+}
+
+function pick(i, btn) {
+  selectedCase = i;
+  document.querySelectorAll('.case-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('custom-wrap').style.display = i === CASES[lang].length ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PROMPT
+// ═══════════════════════════════════════════════════════════════════
+function buildPrompt(source) {
+  const isNL = lang === 'nl';
+  return isNL
+    ? `Je bent expert in het schrijven van gesprekskaarten voor moreel beraad in de zorg en het onderwijs.
+
+Schrijf een gesprekskaart op basis van onderstaande casus. Regels:
+- Maximaal 150 woorden (verhaal, exclusief titel en afsluitvraag)
+- Herkenbare situatie → moreel of praktisch dilemma
+- Toon: empathisch, prikkelend, uitnodigend tot gesprek
+- Sluit af met PRECIES één krachtige open vraag
+- Schrijftaal: Nederlands
+- Setting: ${CTX_DESC.nl[ctx]}
+
+Geef je antwoord UITSLUITEND als geldig JSON-object, geen markdown, geen extra tekst:
+{"title":"pakkende titel max 8 woorden","story":"verhaal max 150 woorden","closing_question":"één krachtige open vraag","image_prompt":"English cinematic photo prompt for Midjourney/DALL-E, no text in image, ${CTX_IMG[ctx]}, focus on emotion or symbolic object"}
+
+CASUS:\n${source}`
+    : `You are an expert in writing conversation cards for moral deliberation in healthcare and education.
+
+Write a conversation card based on the case below. Rules:
+- Maximum 150 words (story only, excluding title and closing question)
+- Recognisable situation leading to a moral or practical dilemma
+- Tone: empathetic, thought-provoking, inviting discussion
+- End with EXACTLY one powerful open question
+- Language: English
+- Setting: ${CTX_DESC.en[ctx]}
+
+Respond ONLY with a valid JSON object, no markdown, no extra text:
+{"title":"punchy title max 8 words","story":"story max 150 words","closing_question":"one powerful open question","image_prompt":"English cinematic photo prompt for Midjourney/DALL-E, no text in image, ${CTX_IMG[ctx]}, focus on emotion or symbolic object"}
+
+CASE:\n${source}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// API CALL
+// ═══════════════════════════════════════════════════════════════════
+async function callAPI(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message || 'API error');
+  const raw = data.content.map(i => i.text || '').join('').replace(/```json|```/g, '').trim();
+  return JSON.parse(raw);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// GENERATE SINGLE
+// ═══════════════════════════════════════════════════════════════════
+async function generate() {
+  if (!apiKey) { alert(t('alertKey')); return; }
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('loading').classList.add('show');
+  try {
+    const cases = CASES[lang];
+    let source = selectedCase === cases.length
+      ? (document.getElementById('custom-topic').value || 'a moral dilemma')
+      : `Title: ${cases[selectedCase].title}\n\n${cases[selectedCase].text}`;
+    const parsed = await callAPI(buildPrompt(source));
+    lastCard = parsed;
+    showCard(parsed);
+  } catch (err) {
+    document.getElementById('loading').classList.remove('show');
+    alert('Error: ' + err.message);
+  }
+  btn.disabled = false;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// GENERATE BATCH
+// ═══════════════════════════════════════════════════════════════════
+async function generateBatch() {
+  if (!apiKey) { alert(t('alertKey')); return; }
+  const raw = document.getElementById('batch-input').value.trim();
+  const topics = raw.split('\n').map(l => l.trim()).filter(l => l.length > 3);
+  if (topics.length === 0) { alert(t('alertEmpty')); return; }
+  if (topics.length > 15) { alert(t('alertMax')); return; }
+
+  batchCards = [];
+  const btn = document.getElementById('batch-btn');
+  btn.disabled = true;
+  document.getElementById('batch-results').innerHTML = '';
+  document.getElementById('batch-export-row').style.display = 'none';
+  const progress = document.getElementById('batch-progress');
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  progress.classList.add('show');
+
+  for (let i = 0; i < topics.length; i++) {
+    progressText.textContent = t('batchProgress')(i + 1, topics.length);
+    progressBar.style.width = ((i / topics.length) * 100) + '%';
+    const placeholder = document.createElement('div');
+    placeholder.className = 'batch-card';
+    placeholder.id = 'bc-' + i;
+    placeholder.innerHTML = `<div class="batch-card-status">⏳ ${topics[i]}</div>`;
+    document.getElementById('batch-results').appendChild(placeholder);
+    try {
+      const card = await callAPI(buildPrompt(topics[i]));
+      card._source = topics[i];
+      batchCards.push(card);
+      document.getElementById('bc-' + i).innerHTML = `
+        <div class="batch-card-title">${card.title}</div>
+        <div class="batch-card-story">${card.story}</div>
+        <div class="batch-card-q">${card.closing_question}</div>
+        <div class="batch-card-status" style="color:var(--teal)">${t('batchGenerated')}</div>`;
+    } catch (err) {
+      batchCards.push(null);
+      document.getElementById('bc-' + i).innerHTML = `<div class="batch-card-status" style="color:#c00">✗ ${err.message}</div>`;
+    }
+    if (i < topics.length - 1) await new Promise(r => setTimeout(r, 600));
+  }
+
+  progressBar.style.width = '100%';
+  progressText.textContent = t('batchDone')(batchCards.filter(Boolean).length, topics.length);
+  document.getElementById('batch-export-row').style.display = 'flex';
+  btn.disabled = false;
+}
+
+function clearBatch() {
+  batchCards = [];
+  document.getElementById('batch-results').innerHTML = '';
+  document.getElementById('batch-export-row').style.display = 'none';
+  document.getElementById('batch-progress').classList.remove('show');
+  document.getElementById('batch-input').value = '';
+}
+
+function exportBatchPDF() {
+  const cards = batchCards.filter(Boolean);
+  if (cards.length === 0) { alert(t('alertNoCards')); return; }
+  renderCardToPDF(cards);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// IMAGE GENERATION (Pollinations.ai)
+// ═══════════════════════════════════════════════════════════════════
+let currentImagePrompt = '';
+
+function buildPollinationsUrl(prompt) {
+  const encoded = encodeURIComponent(prompt + ', no text, no watermark, no logo');
+  return `https://image.pollinations.ai/prompt/${encoded}?width=800&height=500&nologo=true&seed=${Math.floor(Math.random() * 99999)}`;
+}
+
+function loadImage(prompt) {
+  currentImagePrompt = prompt;
+  const area = document.getElementById('img-area');
+  const actions = document.getElementById('img-actions');
+
+  // Show skeleton loader
+  area.innerHTML = '<div class="img-skeleton"></div>';
+  area.style.border = 'none';
+  actions.style.display = 'none';
+
+  const img = new Image();
+  const url = buildPollinationsUrl(prompt);
+
+  img.onload = () => {
+    area.innerHTML = '';
+    area.style.border = 'none';
+    area.appendChild(img);
+    actions.style.display = 'flex';
+    applyTranslations();
+  };
+
+  img.onerror = () => {
+    area.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:32px;height:32px;opacity:0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg><span style="font-size:12px">${lang === 'nl' ? 'Afbeelding kon niet worden geladen' : 'Image could not be loaded'}</span>`;
+    area.style.border = '1px dashed var(--border)';
+    actions.style.display = 'flex';
+    applyTranslations();
+  };
+
+  img.src = url;
+  img.alt = prompt;
+  img.style.cssText = 'width:100%;max-height:340px;object-fit:cover;border-radius:var(--radius-sm);display:block;';
+}
+
+function regenerateImage() {
+  if (currentImagePrompt) loadImage(currentImagePrompt);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SHOW CARD
+// ═══════════════════════════════════════════════════════════════════
+function showCard(p) {
+  document.getElementById('loading').classList.remove('show');
+  document.getElementById('r-title').textContent = p.title || '';
+  document.getElementById('r-story').textContent = p.story || '';
+  document.getElementById('r-question').textContent = p.closing_question || '';
+  document.getElementById('ctx-tag').textContent = t('ctx_' + ctx);
+
+  // Reset image area to placeholder state first
+  const area = document.getElementById('img-area');
+  area.innerHTML = '<div class="img-skeleton"></div>';
+  area.style.border = 'none';
+  document.getElementById('img-actions').style.display = 'none';
+
+  if (p.image_prompt) {
+    document.getElementById('img-prompt-box').textContent = p.image_prompt;
+    document.getElementById('img-prompt-wrap').style.display = 'block';
+    // Auto-load image from Pollinations
+    loadImage(p.image_prompt);
+  }
+
+  document.getElementById('result').classList.add('show');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// COPY
+// ═══════════════════════════════════════════════════════════════════
+function copyCard() {
+  if (!lastCard) return;
+  const text = [lastCard.title, '', lastCard.story, '', lastCard.closing_question, '', t('fq1'), t('fq2')].join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = t('copied');
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PDF EXPORT
+// ═══════════════════════════════════════════════════════════════════
+function exportPDF() {
+  if (!lastCard) { alert(t('alertNoCard')); return; }
+  renderCardToPDF([lastCard]);
+}
+
+function exportAllPDF() {
+  const cards = CASES[lang].map(c => ({ title: c.title, story: c.text, closing_question: c.question, image_prompt: null }));
+  renderCardToPDF(cards);
+}
+
+function renderCardToPDF(cards) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = 210, pageH = 297, marginL = 20, marginR = 20, marginT = 22;
+  const contentW = pageW - marginL - marginR;
+  const teal = [0, 95, 115], tealLight = [225, 245, 238], tealBorder = [93, 202, 165];
+  const blueLight = [230, 241, 251], blueBorder = [133, 183, 235];
+  const darkGrey = [40, 40, 40], midGrey = [100, 100, 100], white = [255, 255, 255];
+
+  cards.forEach((card, idx) => {
+    if (idx > 0) doc.addPage();
+    let y = marginT;
+
+    doc.setFillColor(...teal);
+    doc.rect(0, 0, pageW, 12, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(...white);
+    doc.text(t('pdfHeader'), marginL, 8);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
+    doc.text((t('ctx_' + ctx) || ctx) + ' · Ethos Studio', pageW - marginR, 8, { align: 'right' });
+
+    y = 22;
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(18); doc.setTextColor(...teal);
+    const titleLines = doc.splitTextToSize(card.title || '', contentW);
+    doc.text(titleLines, marginL, y);
+    y += titleLines.length * 8 + 4;
+
+    doc.setDrawColor(...tealBorder); doc.setLineWidth(0.4);
+    doc.line(marginL, y, pageW - marginR, y);
+    y += 6;
+
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(11); doc.setTextColor(...darkGrey);
+    const storyLines = doc.splitTextToSize(card.story || '', contentW);
+    doc.text(storyLines, marginL, y);
+    y += storyLines.length * 5.5 + 6;
+
+    const qLines = doc.splitTextToSize(card.closing_question || '', contentW - 12);
+    const qBoxH = qLines.length * 6 + 10;
+    doc.setFillColor(...blueLight); doc.setLineWidth(0);
+    doc.roundedRect(marginL, y, contentW, qBoxH, 2, 2, 'F');
+    doc.setFillColor(...blueBorder); doc.rect(marginL, y, 3, qBoxH, 'F');
+    doc.setFont('helvetica', 'bolditalic'); doc.setFontSize(11); doc.setTextColor(24, 95, 165);
+    doc.text(qLines, marginL + 8, y + 7);
+    y += qBoxH + 6;
+
+    const fqLines = [t('fq1'), t('fq2')];
+    const fqBoxH = fqLines.length * 7 + 10;
+    doc.setFillColor(...tealLight);
+    doc.roundedRect(marginL, y, contentW, fqBoxH, 2, 2, 'F');
+    doc.setFillColor(...teal); doc.rect(marginL, y, 3, fqBoxH, 'F');
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...teal);
+    fqLines.forEach((q, i) => doc.text(q, marginL + 8, y + 8 + i * 7));
+    y += fqBoxH + 8;
+
+    const remainH = pageH - y - 18;
+    const imgH = Math.max(remainH, 60);
+
+    // Embed live image if available (single card from UI), else placeholder
+    const imgEl = document.querySelector('#img-area img');
+    let imgEmbedded = false;
+    if (idx === 0 && imgEl && imgEl.complete && imgEl.naturalWidth > 0) {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = imgEl.naturalWidth; canvas.height = imgEl.naturalHeight;
+        canvas.getContext('2d').drawImage(imgEl, 0, 0);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+        doc.addImage(dataUrl, 'JPEG', marginL, y, contentW, imgH);
+        imgEmbedded = true;
+      } catch(e) { /* CORS — fall through to placeholder */ }
+    }
+    if (!imgEmbedded) {
+      doc.setDrawColor(...tealBorder); doc.setLineWidth(0.5); doc.setFillColor(248, 248, 246);
+      doc.roundedRect(marginL, y, contentW, imgH, 3, 3, 'FD');
+      doc.setDrawColor(180, 180, 180); doc.setLineWidth(0.3);
+      doc.roundedRect(marginL + 3, y + 3, contentW - 6, imgH - 6, 2, 2, 'D');
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...midGrey);
+      doc.text(t('pdfImgText'), pageW / 2, y + imgH / 2 - 4, { align: 'center' });
+      doc.setFontSize(8);
+      doc.text(t('pdfImgSub'), pageW / 2, y + imgH / 2 + 4, { align: 'center' });
+    }
+
+    if (card.image_prompt) {
+      doc.setFont('helvetica', 'italic'); doc.setFontSize(7); doc.setTextColor(160, 160, 160);
+      const ps = card.image_prompt.length > 120 ? card.image_prompt.substring(0, 120) + '…' : card.image_prompt;
+      doc.text('Prompt: ' + ps, marginL, pageH - 10, { maxWidth: contentW });
+    }
+
+    doc.setDrawColor(...teal); doc.setLineWidth(0.3);
+    doc.line(marginL, pageH - 14, pageW - marginR, pageH - 14);
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...midGrey);
+    doc.text(t('pdfFooter'), marginL, pageH - 10);
+    doc.text(`${idx + 1} / ${cards.length}`, pageW - marginR, pageH - 10, { align: 'right' });
+  });
+
+  const filename = (cards[0].title || 'ethos_studio').toLowerCase().replace(/[^a-z0-9]+/g, '_').substring(0, 40) + '.pdf';
+  doc.save(filename);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EXISTING CASES
+// ═══════════════════════════════════════════════════════════════════
+function renderExisting() {
+  const cases = CASES[lang];
+  document.getElementById('existing').innerHTML = cases.map((c, i) => `
+    <div class="ex-card" id="ex-${i}">
+      <div class="ex-header" onclick="toggleEx(${i})">
+        <span class="ex-title">${c.title}</span>
+        <span class="ex-arrow">▾</span>
+      </div>
+      <div class="ex-body">
+        <p class="ex-text">${c.text}</p>
+        <div class="ex-q">${c.question}</div>
+        <div class="tags">${c.values.map(v => `<span class="tag">${v}</span>`).join('')}</div>
+        <div style="margin-top:0.75rem;font-size:13px;font-weight:600;color:var(--teal)">${t('fq1')} &nbsp;·&nbsp; ${t('fq2')}</div>
+      </div>
+    </div>`).join('');
+}
+
+function toggleEx(i) {
+  const card = document.getElementById('ex-' + i);
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.ex-card').forEach(c => c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+applyTranslations();
+</script>
+</body>
+</html>
