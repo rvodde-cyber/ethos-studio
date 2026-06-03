@@ -498,26 +498,31 @@
 const ACCESS_CODE = 'ethos2025';
 
 function checkCode() {
-  const val = document.getElementById('lock-input').value.trim().toLowerCase();
-  if (val === ACCESS_CODE) {
+  const raw = document.getElementById('lock-input').value;
+  const val = raw.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  const expected = ACCESS_CODE.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+  console.log('Entered:', JSON.stringify(val), 'Expected:', JSON.stringify(expected));
+  if (val === expected) {
     document.getElementById('lock-screen').classList.add('hidden');
     document.getElementById('landing').classList.remove('hidden');
-    sessionStorage.setItem('ethos_access', '1');
+    try { sessionStorage.setItem('ethos_access', '1'); } catch(e) {}
   } else {
     const inp = document.getElementById('lock-input');
     inp.classList.add('error');
-    document.getElementById('lock-error').textContent = lang === 'nl' ? 'Onjuiste code. Probeer opnieuw.' : 'Incorrect code. Please try again.';
-    setTimeout(() => inp.classList.remove('error'), 500);
+    document.getElementById('lock-error').textContent = 'Onjuiste code / Incorrect code';
+    setTimeout(() => { inp.classList.remove('error'); }, 500);
     inp.value = '';
     inp.focus();
   }
 }
 
 // Auto-unlock if already authenticated this session
-if (sessionStorage.getItem('ethos_access') === '1') {
-  document.getElementById('lock-screen').classList.add('hidden');
-  document.getElementById('landing').classList.remove('hidden');
-}
+try {
+  if (sessionStorage.getItem('ethos_access') === '1') {
+    document.getElementById('lock-screen').classList.add('hidden');
+    document.getElementById('landing').classList.remove('hidden');
+  }
+} catch(e) {}
 
 function launchApp() {
   document.getElementById('landing').classList.add('hidden');
