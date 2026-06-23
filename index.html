@@ -96,6 +96,8 @@
     .key-guide a { color: var(--blue); }
 
     .api-row { margin-bottom: 0.75rem; }
+    .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; font-size: 12px; color: var(--muted); }
+    .remember-row input { width: auto; accent-color: var(--teal); }
       width: 100%; padding: 14px; background: var(--teal); color: white; border: none;
       border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; font-weight: 600;
       cursor: pointer; transition: background 0.15s;
@@ -187,10 +189,14 @@
     </div>
 
     <div class="api-row">
-      <label for="api-key" data-i18n="apiLabel">🔑 API-key</label>
+      <label for="api-key" data-i18n="apiLabel">🔑 Plak hier je Claude-key</label>
       <input type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off"/>
       <button type="button" onclick="saveKey()" data-i18n="apiSave">Opslaan</button>
     </div>
+    <label class="remember-row">
+      <input type="checkbox" id="remember-key" checked onchange="saveRememberPref()"/>
+      <span data-i18n="rememberKey">Onthoud op dit apparaat (je hoeft de key niet elke keer opnieuw in te vullen)</span>
+    </label>
     <p class="api-hint"><span data-i18n="apiHint">Gratis account op</span> <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> · <span data-i18n="apiCost">± €0,01 per kaart</span></p>
 
     <button type="submit" class="submit-btn" data-i18n="submitBtn">Genereer gesprekskaart →</button>
@@ -234,9 +240,11 @@ const T = {
     keyStep4: 'Klik op + Create Key. Geef een naam, bijvoorbeeld Ethos Studio.',
     keyStep5: 'Er verschijnt een lange code die begint met sk-ant-... Klik op Copy (Kopiëren). Bewaar hem even — je ziet hem maar één keer.',
     keyStep6: 'Kom terug naar deze pagina. Plak de code in het gele veld hieronder.',
-    keyStep7: 'Klik op Opslaan. Klaar! Je hoeft dit per browserbezoek maar één keer te doen.',
+    keyStep7: 'Klik op Opslaan. Vink "Onthoud op dit apparaat" aan — dan hoef je de key hierna niet opnieuw in te vullen.',
     keyGuideTip: '💡 Eén gesprekskaart kost ongeveer 1 cent. Deel je key nooit met anderen — het is persoonlijk, zoals een wachtwoord.',
     apiLabel: '🔑 Plak hier je Claude-key', apiSave: 'Opslaan',
+    rememberKey: 'Onthoud op dit apparaat (je hoeft de key niet elke keer opnieuw in te vullen)',
+    apiSaved: '✓ Opgeslagen',
     apiHint: 'Gratis account op', apiCost: '± €0,01 per kaart',
     submitBtn: 'Genereer gesprekskaart →',
     studioLink: 'Volledige studio (batch & voorbeelden)',
@@ -268,9 +276,11 @@ const T = {
     keyStep4: 'Click + Create Key. Give it a name, e.g. Ethos Studio.',
     keyStep5: 'A long code appears starting with sk-ant-... Click Copy. Save it — you only see it once.',
     keyStep6: 'Come back to this page. Paste the code in the yellow field below.',
-    keyStep7: 'Click Save. Done! You only need to do this once per browser session.',
+    keyStep7: 'Click Save. Check "Remember on this device" — then you will not need to enter the key again.',
     keyGuideTip: '💡 One conversation card costs about 1 cent. Never share your key — it is personal, like a password.',
     apiLabel: '🔑 Paste your Claude key here', apiSave: 'Save',
+    rememberKey: 'Remember on this device (no need to enter the key every time)',
+    apiSaved: '✓ Saved',
     apiHint: 'Free account at', apiCost: '± €0.01 per card',
     submitBtn: 'Generate conversation card →',
     studioLink: 'Full studio (batch & examples)',
@@ -317,21 +327,50 @@ function setCtx(c, btn) {
   btn.classList.add('active');
 }
 
+function loadSavedKey() {
+  try {
+    const remember = localStorage.getItem('ethos_remember_key') !== '0';
+    const checkbox = document.getElementById('remember-key');
+    if (checkbox) checkbox.checked = remember;
+    const key = remember
+      ? (localStorage.getItem('ethos_api_key') || sessionStorage.getItem('ethos_api_key'))
+      : sessionStorage.getItem('ethos_api_key');
+    if (key) document.getElementById('api-key').value = key;
+    const savedLang = sessionStorage.getItem('ethos_lang') || localStorage.getItem('ethos_lang');
+    if (savedLang === 'en' || savedLang === 'nl') setLang(savedLang);
+  } catch (e) {}
+}
+
+function saveRememberPref() {
+  try {
+    const remember = document.getElementById('remember-key').checked;
+    localStorage.setItem('ethos_remember_key', remember ? '1' : '0');
+    if (!remember) localStorage.removeItem('ethos_api_key');
+    else {
+      const key = document.getElementById('api-key').value.trim();
+      if (key) localStorage.setItem('ethos_api_key', key);
+    }
+  } catch (e) {}
+}
+
 function saveKey() {
   const key = document.getElementById('api-key').value.trim();
   if (!key) return;
   try {
     sessionStorage.setItem('ethos_api_key', key);
     sessionStorage.setItem('ethos_lang', lang);
+    if (document.getElementById('remember-key').checked) {
+      localStorage.setItem('ethos_api_key', key);
+      localStorage.setItem('ethos_remember_key', '1');
+      localStorage.setItem('ethos_lang', lang);
+    } else {
+      localStorage.removeItem('ethos_api_key');
+      localStorage.setItem('ethos_remember_key', '0');
+    }
   } catch (e) {}
 }
 
-try {
-  const savedKey = sessionStorage.getItem('ethos_api_key');
-  if (savedKey) document.getElementById('api-key').value = savedKey;
-  const savedLang = sessionStorage.getItem('ethos_lang');
-  if (savedLang === 'en' || savedLang === 'nl') setLang(savedLang);
-} catch (e) {}
+loadSavedKey();
 
 function startGenerate(e) {
   e.preventDefault();

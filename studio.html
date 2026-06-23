@@ -56,6 +56,8 @@
     .key-guide-wrap li { margin-bottom: 0.35rem; }
     .key-guide-wrap .key-guide-tip { font-size: 12px; margin-top: 0.5rem; padding: 8px 10px; background: rgba(255,255,255,0.5); border-radius: 6px; }
     .key-guide-wrap a { color: #633806; font-weight: 600; }
+    .remember-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #633806; width: 100%; margin-top: 4px; }
+    .remember-row input { width: auto; accent-color: var(--teal); }
 
     /* ── LAYOUT ── */
     .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
@@ -225,7 +227,11 @@
     <input type="password" id="api-input" placeholder="sk-ant-api03-..." autocomplete="off"/>
     <button onclick="saveKey()" data-i18n="apiSave">Opslaan</button>
     <span class="saved" id="key-saved" data-i18n="apiSaved">✓ Opgeslagen voor deze sessie</span>
-    <span class="api-hint"><span data-i18n="apiHint">Geen key? Maak gratis een account aan op</span> <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></span>
+    <label class="remember-row">
+      <input type="checkbox" id="remember-key" checked onchange="saveRememberPref()"/>
+      <span data-i18n="rememberKey">Onthoud op dit apparaat</span>
+    </label>
+    <span class="api-hint"><span data-i18n="apiHint">Nog geen key?</span> <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></span>
   </div>
 
   <div class="key-guide-wrap">
@@ -389,7 +395,8 @@ const T = {
   nl: {
     subtitle: 'Moreel beraad · Ethisch leren', help: '? Handleiding', homeLink: '← Start',
     apiLabel: '🔑 Plak hier je Claude-key:', apiSave: 'Opslaan',
-    apiSaved: '✓ Opgeslagen voor deze sessie',
+    apiSaved: '✓ Opgeslagen',
+    rememberKey: 'Onthoud op dit apparaat',
     apiHint: 'Nog geen key?',
     keyGuideToggle: 'Hoe krijg ik een Claude-key? (stap voor stap)',
     keyGuideIntro: 'Claude schrijft het verhaal. Jij hebt een persoonlijke sleutel (API-key) nodig — een soort wachtwoord voor de AI.',
@@ -398,7 +405,7 @@ const T = {
     keyStep4: 'Klik + Create Key. Naam: Ethos Studio.',
     keyStep5: 'Kopieer de code die begint met sk-ant-... (je ziet hem maar één keer).',
     keyStep6: 'Plak de code in het gele veld hierboven.',
-    keyStep7: 'Klik Opslaan. Klaar — per browserbezoek één keer.',
+    keyStep7: 'Klik Opslaan. Vink "Onthoud op dit apparaat" aan — daarna niet opnieuw invullen.',
     keyGuideTip: '💡 ± 1 cent per kaart. Deel je key nooit — het is persoonlijk.',
     panelTitle: 'Nieuwe kaart(en) genereren', ctxLabel: 'Sector / context',
     ctx_hospital: 'Ziekenhuis', ctx_care: 'Zorg', ctx_education: 'Onderwijs',
@@ -442,7 +449,8 @@ const T = {
   en: {
     subtitle: 'Moral deliberation · Ethical learning', help: '? User guide', homeLink: '← Home',
     apiLabel: '🔑 Paste your Claude key here:', apiSave: 'Save',
-    apiSaved: '✓ Saved for this session',
+    apiSaved: '✓ Saved',
+    rememberKey: 'Remember on this device',
     apiHint: 'No key yet?',
     keyGuideToggle: 'How do I get a Claude key? (step by step)',
     keyGuideIntro: 'Claude writes the story. You need a personal key (API key) — like a password for the AI.',
@@ -451,7 +459,7 @@ const T = {
     keyStep4: 'Click + Create Key. Name it Ethos Studio.',
     keyStep5: 'Copy the code starting with sk-ant-... (you only see it once).',
     keyStep6: 'Paste the code in the yellow field above.',
-    keyStep7: 'Click Save. Done — once per browser session.',
+    keyStep7: 'Click Save. Check "Remember on this device" — no need to enter again.',
     keyGuideTip: '💡 About 1 cent per card. Never share your key — it is personal.',
     panelTitle: 'Generate card(s)', ctxLabel: 'Sector / context',
     ctx_hospital: 'Hospital', ctx_care: 'Healthcare', ctx_education: 'Education',
@@ -561,7 +569,7 @@ function applyTranslations() {
       ? `Ga naar <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a>.`
       : `Go to <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a>.`;
   }
-  if (!sessionStorage.getItem('ethos_api_key')) {
+  if (!sessionStorage.getItem('ethos_api_key') && !localStorage.getItem('ethos_api_key')) {
     const details = document.getElementById('key-guide-details');
     if (details) details.open = true;
   }
@@ -577,22 +585,47 @@ function applyTranslations() {
 }
 
 function setLang(l) { lang = l; applyTranslations(); }
+function loadSavedKey() {
+  try {
+    const remember = localStorage.getItem('ethos_remember_key') !== '0';
+    const checkbox = document.getElementById('remember-key');
+    if (checkbox) checkbox.checked = remember;
+    const savedKey = remember
+      ? (localStorage.getItem('ethos_api_key') || sessionStorage.getItem('ethos_api_key'))
+      : sessionStorage.getItem('ethos_api_key');
+    if (savedKey) {
+      apiKey = savedKey;
+      const apiInput = document.getElementById('api-input');
+      if (apiInput) apiInput.value = savedKey;
+    }
+  } catch (e) {}
+}
+function saveRememberPref() {
+  try {
+    const remember = document.getElementById('remember-key').checked;
+    localStorage.setItem('ethos_remember_key', remember ? '1' : '0');
+    if (!remember) localStorage.removeItem('ethos_api_key');
+    else if (apiKey) localStorage.setItem('ethos_api_key', apiKey);
+  } catch (e) {}
+}
 function saveKey() {
   apiKey = document.getElementById('api-input').value.trim();
   if (apiKey) {
-    try { sessionStorage.setItem('ethos_api_key', apiKey); } catch (e) {}
+    try {
+      sessionStorage.setItem('ethos_api_key', apiKey);
+      if (document.getElementById('remember-key').checked) {
+        localStorage.setItem('ethos_api_key', apiKey);
+        localStorage.setItem('ethos_remember_key', '1');
+      } else {
+        localStorage.removeItem('ethos_api_key');
+        localStorage.setItem('ethos_remember_key', '0');
+      }
+    } catch (e) {}
     document.getElementById('key-saved').style.display = 'inline';
     setTimeout(() => document.getElementById('key-saved').style.display = 'none', 3000);
   }
 }
-try {
-  const savedKey = sessionStorage.getItem('ethos_api_key');
-  if (savedKey) {
-    apiKey = savedKey;
-    const apiInput = document.getElementById('api-input');
-    if (apiInput) apiInput.value = savedKey;
-  }
-} catch (e) {}
+loadSavedKey();
 function setCtx(c) {
   ctx = c;
   document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('active'));
