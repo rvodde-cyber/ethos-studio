@@ -442,6 +442,8 @@ const T = {
     alertKey: 'Voer eerst je Anthropic API-key in bovenaan de pagina.',
     alertEmpty: 'Voer minimaal één onderwerp in.', alertMax: 'Maximum 15 kaarten per batch.',
     alertNoCards: 'Geen kaarten om te exporteren.', alertNoCard: 'Genereer eerst een gesprekskaart.',
+    alertFetch: 'Verbinding mislukt. Controleer je internet, of neem contact op met Anthropic als je account geen browser-toegang heeft (support@anthropic.com).',
+    alertCors: 'Je Anthropic-account staat geen browser-verzoeken toe. Mail support@anthropic.com of maak een persoonlijke organisatie aan in console.anthropic.com.',
     copied: '✓ Gekopieerd',
     pdfHeader: 'GESPREKSKAART', pdfFooter: 'Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP',
     pdfImgText: 'Voeg hier een afbeelding in', pdfImgSub: '(Firefly · DALL·E · stockfoto)',
@@ -496,6 +498,8 @@ const T = {
     alertKey: 'Please enter your Anthropic API key at the top of the page first.',
     alertEmpty: 'Please enter at least one topic.', alertMax: 'Maximum 15 cards per batch.',
     alertNoCards: 'No cards to export.', alertNoCard: 'Please generate a card first.',
+    alertFetch: 'Connection failed. Check your internet, or contact Anthropic if your account blocks browser access (support@anthropic.com).',
+    alertCors: 'Your Anthropic account does not allow browser requests. Email support@anthropic.com or create a personal organization at console.anthropic.com.',
     copied: '✓ Copied',
     pdfHeader: 'CONVERSATION CARD', pdfFooter: 'Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP',
     pdfImgText: 'Insert an image here', pdfImgSub: '(Firefly · DALL·E · stock photo)',
@@ -704,14 +708,36 @@ function parseCardResponse(raw) {
   throw new Error(lang === 'nl' ? 'Ongeldige JSON van API' : 'Invalid JSON from API');
 }
 async function fetchAPI(prompt) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message||'API error');
-  return data.content.map(i=>i.text||'').join('');
+  let res;
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+  } catch (e) {
+    throw new Error(t('alertFetch'));
+  }
+  let data;
+  try { data = await res.json(); } catch (e) { throw new Error(t('alertFetch')); }
+  if (!res.ok || data.error) {
+    const msg = data.error?.message || 'API error';
+    if (/CORS|browser/i.test(msg)) throw new Error(t('alertCors'));
+    throw new Error(msg);
+  }
+  return data.content.map(i => i.text || '').join('');
+}
+function showApiError(err) {
+  alert(err.message || t('alertFetch'));
 }
 async function callAPI(prompt) {
   const retryNote = lang === 'nl'
@@ -809,7 +835,7 @@ async function generate() {
     showCard(parsed);
   } catch(err) {
     document.getElementById('loading').classList.remove('show');
-    alert('Error: '+err.message);
+    showApiError(err);
   }
   btn.disabled = false;
 }
