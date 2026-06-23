@@ -444,6 +444,7 @@ const T = {
     alertNoCards: 'Geen kaarten om te exporteren.', alertNoCard: 'Genereer eerst een gesprekskaart.',
     alertFetch: 'Verbinding mislukt. Controleer je internet, of neem contact op met Anthropic als je account geen browser-toegang heeft (support@anthropic.com).',
     alertCors: 'Je Anthropic-account staat geen browser-verzoeken toe. Mail support@anthropic.com of maak een persoonlijke organisatie aan in console.anthropic.com.',
+    alertCredits: 'API-tegoed op is — dit is los van Claude chat (claude.ai).\n\n• Ga naar console.anthropic.com → Plans & Billing\n• Koop credits of voeg een betaalmethode toe\n• Controleer of je de key van de juiste organisatie gebruikt\n\nClaude Pro/Max in de chat app geeft geen API-tegoed.',
     copied: '✓ Gekopieerd',
     pdfHeader: 'GESPREKSKAART', pdfFooter: 'Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP',
     pdfImgText: 'Voeg hier een afbeelding in', pdfImgSub: '(Firefly · DALL·E · stockfoto)',
@@ -500,6 +501,7 @@ const T = {
     alertNoCards: 'No cards to export.', alertNoCard: 'Please generate a card first.',
     alertFetch: 'Connection failed. Check your internet, or contact Anthropic if your account blocks browser access (support@anthropic.com).',
     alertCors: 'Your Anthropic account does not allow browser requests. Email support@anthropic.com or create a personal organization at console.anthropic.com.',
+    alertCredits: 'API credits exhausted — separate from Claude chat (claude.ai).\n\n• Go to console.anthropic.com → Plans & Billing\n• Buy credits or add a payment method\n• Check you use the key from the correct organization\n\nClaude Pro/Max in the chat app does not include API credits.',
     copied: '✓ Copied',
     pdfHeader: 'CONVERSATION CARD', pdfFooter: 'Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP',
     pdfImgText: 'Insert an image here', pdfImgSub: '(Firefly · DALL·E · stock photo)',
@@ -732,6 +734,7 @@ async function fetchAPI(prompt) {
   if (!res.ok || data.error) {
     const msg = data.error?.message || 'API error';
     if (/CORS|browser/i.test(msg)) throw new Error(t('alertCors'));
+    if (/credit balance|too low|billing|purchase credits/i.test(msg)) throw new Error(t('alertCredits'));
     throw new Error(msg);
   }
   return data.content.map(i => i.text || '').join('');
