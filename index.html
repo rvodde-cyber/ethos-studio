@@ -79,10 +79,23 @@
       padding: 7px 12px; font-size: 12px; border-radius: 6px; background: var(--amber);
       color: white; border: none; cursor: pointer; font-family: inherit;
     }
-    .api-hint { font-size: 11px; color: var(--amber); margin-top: 6px; }
-    .api-hint a { color: var(--amber); }
 
     .submit-btn {
+    .api-hint a { color: var(--amber); }
+
+    .key-guide {
+      background: var(--blue-bg); border: 1px solid #85B7EB; border-radius: var(--radius-sm);
+      padding: 1rem 1.125rem; margin-bottom: 1rem; font-size: 13px; line-height: 1.55;
+    }
+    .key-guide-title { font-weight: 600; color: var(--blue); display: block; margin-bottom: 0.35rem; font-size: 14px; }
+    .key-guide-intro { color: var(--muted); margin-bottom: 0.75rem; font-size: 12px; }
+    .key-guide ol { margin: 0 0 0.75rem 1.15rem; color: var(--text); }
+    .key-guide li { margin-bottom: 0.4rem; padding-left: 0.25rem; }
+    .key-guide li strong { color: var(--blue); }
+    .key-guide-tip { font-size: 12px; color: var(--amber); background: var(--amber-bg); border-radius: 6px; padding: 8px 10px; line-height: 1.5; }
+    .key-guide a { color: var(--blue); }
+
+    .api-row { margin-bottom: 0.75rem; }
       width: 100%; padding: 14px; background: var(--teal); color: white; border: none;
       border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; font-weight: 600;
       cursor: pointer; transition: background 0.15s;
@@ -158,6 +171,21 @@
       <textarea id="focus" name="focus" rows="2" data-i18n-placeholder="focusPlaceholder"></textarea>
     </div>
 
+    <div class="key-guide">
+      <span class="key-guide-title" data-i18n="keyGuideTitle">Eerste keer? Zo regel je een Claude-key</span>
+      <p class="key-guide-intro" data-i18n="keyGuideIntro">Ethos Studio laat Claude het verhaal schrijven. Daarvoor heb je een persoonlijke sleutel (API-key) nodig — een soort inlogcode voor de AI. Even regelen, daarna werkt het jarenlang.</p>
+      <ol>
+        <li id="key-step1" data-i18n="keyStep1">Ga naar <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a> (open in een nieuw tabblad).</li>
+        <li data-i18n="keyStep2">Klik op <strong>Sign up</strong> en maak een gratis account. Je e-mailadres en een wachtwoord zijn genoeg.</li>
+        <li data-i18n="keyStep3">Log in. Klik in het menu links op <strong>API Keys</strong>.</li>
+        <li data-i18n="keyStep4">Klik op <strong>+ Create Key</strong>. Geef een naam, bijvoorbeeld <em>Ethos Studio</em>.</li>
+        <li data-i18n="keyStep5">Er verschijnt een lange code die begint met <strong>sk-ant-...</strong> Klik op <strong>Copy</strong> (Kopiëren). Bewaar hem even — je ziet hem maar één keer.</li>
+        <li data-i18n="keyStep6">Kom terug naar deze pagina. Plak de code in het gele veld hieronder.</li>
+        <li data-i18n="keyStep7">Klik op <strong>Opslaan</strong>. Klaar! Je hoeft dit per browserbezoek maar één keer te doen.</li>
+      </ol>
+      <p class="key-guide-tip" data-i18n="keyGuideTip">💡 Eén gesprekskaart kost ongeveer 1 cent. Deel je key nooit met anderen — het is persoonlijk, zoals een wachtwoord.</p>
+    </div>
+
     <div class="api-row">
       <label for="api-key" data-i18n="apiLabel">🔑 API-key</label>
       <input type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off"/>
@@ -198,7 +226,17 @@ const T = {
     topicHint: 'Bijv.: een verpleegkundige ziet dat een collega een fout maakt, maar wil de sfeer niet verstoren.',
     focusLabel: 'Waar draait het dilemma om? (optioneel)',
     focusPlaceholder: 'Bijv.: loyaliteit versus patiëntveiligheid, of: wie heeft hier het laatste woord?',
-    apiLabel: '🔑 API-key', apiSave: 'Opslaan',
+    keyGuideTitle: 'Eerste keer? Zo regel je een Claude-key',
+    keyGuideIntro: 'Ethos Studio laat Claude het verhaal schrijven. Daarvoor heb je een persoonlijke sleutel (API-key) nodig — een soort inlogcode voor de AI. Even regelen, daarna werkt het jarenlang.',
+    keyStep1: 'Ga naar console.anthropic.com (open in een nieuw tabblad).',
+    keyStep2: 'Klik op Sign up en maak een gratis account. Je e-mailadres en een wachtwoord zijn genoeg.',
+    keyStep3: 'Log in. Klik in het menu links op API Keys.',
+    keyStep4: 'Klik op + Create Key. Geef een naam, bijvoorbeeld Ethos Studio.',
+    keyStep5: 'Er verschijnt een lange code die begint met sk-ant-... Klik op Copy (Kopiëren). Bewaar hem even — je ziet hem maar één keer.',
+    keyStep6: 'Kom terug naar deze pagina. Plak de code in het gele veld hieronder.',
+    keyStep7: 'Klik op Opslaan. Klaar! Je hoeft dit per browserbezoek maar één keer te doen.',
+    keyGuideTip: '💡 Eén gesprekskaart kost ongeveer 1 cent. Deel je key nooit met anderen — het is persoonlijk, zoals een wachtwoord.',
+    apiLabel: '🔑 Plak hier je Claude-key', apiSave: 'Opslaan',
     apiHint: 'Gratis account op', apiCost: '± €0,01 per kaart',
     submitBtn: 'Genereer gesprekskaart →',
     studioLink: 'Volledige studio (batch & voorbeelden)',
@@ -222,7 +260,17 @@ const T = {
     topicHint: 'E.g.: a nurse sees a colleague make a mistake but does not want to disrupt the team atmosphere.',
     focusLabel: 'What is the dilemma about? (optional)',
     focusPlaceholder: 'E.g.: loyalty versus patient safety, or: who has the final say here?',
-    apiLabel: '🔑 API key', apiSave: 'Save',
+    keyGuideTitle: 'First time? How to get a Claude key',
+    keyGuideIntro: 'Ethos Studio uses Claude to write the story. You need a personal key (API key) — like a login code for the AI. Set it up once, then you are good to go.',
+    keyStep1: 'Go to console.anthropic.com (open in a new tab).',
+    keyStep2: 'Click Sign up and create a free account. Your email and a password are enough.',
+    keyStep3: 'Log in. Click API Keys in the left menu.',
+    keyStep4: 'Click + Create Key. Give it a name, e.g. Ethos Studio.',
+    keyStep5: 'A long code appears starting with sk-ant-... Click Copy. Save it — you only see it once.',
+    keyStep6: 'Come back to this page. Paste the code in the yellow field below.',
+    keyStep7: 'Click Save. Done! You only need to do this once per browser session.',
+    keyGuideTip: '💡 One conversation card costs about 1 cent. Never share your key — it is personal, like a password.',
+    apiLabel: '🔑 Paste your Claude key here', apiSave: 'Save',
     apiHint: 'Free account at', apiCost: '± €0.01 per card',
     submitBtn: 'Generate conversation card →',
     studioLink: 'Full studio (batch & examples)',
@@ -247,8 +295,16 @@ function setLang(l) {
   document.getElementById('lang-en').classList.toggle('active', l === 'en');
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const k = el.getAttribute('data-i18n');
+    if (k === 'keyStep1') return;
     if (T[lang][k] !== undefined) el.textContent = T[lang][k];
   });
+  const step1 = document.getElementById('key-step1');
+  if (step1) {
+    const url = 'https://console.anthropic.com';
+    step1.innerHTML = lang === 'nl'
+      ? `Ga naar <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a> (open in een nieuw tabblad).`
+      : `Go to <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a> (open in a new tab).`;
+  }
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const k = el.getAttribute('data-i18n-placeholder');
     if (T[lang][k] !== undefined) el.placeholder = T[lang][k];

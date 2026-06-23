@@ -46,6 +46,17 @@
     .api-banner .api-hint { font-size: 12px; color: #633806; }
     .api-banner .api-hint a { color: #633806; }
 
+    .key-guide-wrap { padding: 0 2rem 12px; background: #FAEEDA; border-bottom: 1px solid #EF9F27; }
+    .key-guide-wrap details { font-size: 13px; color: #633806; }
+    .key-guide-wrap summary { cursor: pointer; font-weight: 600; padding: 4px 0; list-style: none; }
+    .key-guide-wrap summary::-webkit-details-marker { display: none; }
+    .key-guide-wrap summary::before { content: '▸ '; }
+    .key-guide-wrap details[open] summary::before { content: '▾ '; }
+    .key-guide-wrap ol { margin: 0.75rem 0 0.5rem 1.25rem; line-height: 1.55; }
+    .key-guide-wrap li { margin-bottom: 0.35rem; }
+    .key-guide-wrap .key-guide-tip { font-size: 12px; margin-top: 0.5rem; padding: 8px 10px; background: rgba(255,255,255,0.5); border-radius: 6px; }
+    .key-guide-wrap a { color: #633806; font-weight: 600; }
+
     /* ── LAYOUT ── */
     .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
     .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
@@ -217,6 +228,23 @@
     <span class="api-hint"><span data-i18n="apiHint">Geen key? Maak gratis een account aan op</span> <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></span>
   </div>
 
+  <div class="key-guide-wrap">
+    <details id="key-guide-details">
+      <summary data-i18n="keyGuideToggle">Hoe krijg ik een Claude-key? (stap voor stap)</summary>
+      <p data-i18n="keyGuideIntro" style="margin-top:0.5rem;line-height:1.55"></p>
+      <ol>
+        <li id="studio-key-step1"></li>
+        <li data-i18n="keyStep2"></li>
+        <li data-i18n="keyStep3"></li>
+        <li data-i18n="keyStep4"></li>
+        <li data-i18n="keyStep5"></li>
+        <li data-i18n="keyStep6"></li>
+        <li data-i18n="keyStep7"></li>
+      </ol>
+      <p class="key-guide-tip" data-i18n="keyGuideTip"></p>
+    </details>
+  </div>
+
   <div class="container">
     <div class="panel">
       <div class="panel-title" data-i18n="panelTitle">Nieuwe kaart(en) genereren</div>
@@ -360,9 +388,18 @@
 const T = {
   nl: {
     subtitle: 'Moreel beraad · Ethisch leren', help: '? Handleiding', homeLink: '← Start',
-    apiLabel: '🔑 Anthropic API-key:', apiSave: 'Opslaan',
+    apiLabel: '🔑 Plak hier je Claude-key:', apiSave: 'Opslaan',
     apiSaved: '✓ Opgeslagen voor deze sessie',
-    apiHint: 'Geen key? Maak gratis een account aan op',
+    apiHint: 'Nog geen key?',
+    keyGuideToggle: 'Hoe krijg ik een Claude-key? (stap voor stap)',
+    keyGuideIntro: 'Claude schrijft het verhaal. Jij hebt een persoonlijke sleutel (API-key) nodig — een soort wachtwoord voor de AI.',
+    keyStep2: 'Klik op Sign up en maak een gratis account (e-mail + wachtwoord).',
+    keyStep3: 'Log in. Klik links op API Keys.',
+    keyStep4: 'Klik + Create Key. Naam: Ethos Studio.',
+    keyStep5: 'Kopieer de code die begint met sk-ant-... (je ziet hem maar één keer).',
+    keyStep6: 'Plak de code in het gele veld hierboven.',
+    keyStep7: 'Klik Opslaan. Klaar — per browserbezoek één keer.',
+    keyGuideTip: '💡 ± 1 cent per kaart. Deel je key nooit — het is persoonlijk.',
     panelTitle: 'Nieuwe kaart(en) genereren', ctxLabel: 'Sector / context',
     ctx_hospital: 'Ziekenhuis', ctx_care: 'Zorg', ctx_education: 'Onderwijs',
     ctx_defence: 'Defensie', ctx_business: 'Bedrijf', ctx_welfare: 'Welzijn',
@@ -404,9 +441,18 @@ const T = {
   },
   en: {
     subtitle: 'Moral deliberation · Ethical learning', help: '? User guide', homeLink: '← Home',
-    apiLabel: '🔑 Anthropic API key:', apiSave: 'Save',
+    apiLabel: '🔑 Paste your Claude key here:', apiSave: 'Save',
     apiSaved: '✓ Saved for this session',
-    apiHint: 'No key? Create a free account at',
+    apiHint: 'No key yet?',
+    keyGuideToggle: 'How do I get a Claude key? (step by step)',
+    keyGuideIntro: 'Claude writes the story. You need a personal key (API key) — like a password for the AI.',
+    keyStep2: 'Click Sign up and create a free account (email + password).',
+    keyStep3: 'Log in. Click API Keys on the left.',
+    keyStep4: 'Click + Create Key. Name it Ethos Studio.',
+    keyStep5: 'Copy the code starting with sk-ant-... (you only see it once).',
+    keyStep6: 'Paste the code in the yellow field above.',
+    keyStep7: 'Click Save. Done — once per browser session.',
+    keyGuideTip: '💡 About 1 cent per card. Never share your key — it is personal.',
     panelTitle: 'Generate card(s)', ctxLabel: 'Sector / context',
     ctx_hospital: 'Hospital', ctx_care: 'Healthcare', ctx_education: 'Education',
     ctx_defence: 'Defence', ctx_business: 'Business', ctx_welfare: 'Social work',
@@ -508,6 +554,17 @@ function applyTranslations() {
     const k = el.getAttribute('data-i18n');
     if (T[lang][k] !== undefined) el.textContent = T[lang][k];
   });
+  const step1 = document.getElementById('studio-key-step1');
+  if (step1) {
+    const url = 'https://console.anthropic.com';
+    step1.innerHTML = lang === 'nl'
+      ? `Ga naar <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a>.`
+      : `Go to <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a>.`;
+  }
+  if (!sessionStorage.getItem('ethos_api_key')) {
+    const details = document.getElementById('key-guide-details');
+    if (details) details.open = true;
+  }
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const k = el.getAttribute('data-i18n-placeholder');
     if (T[lang][k] !== undefined) el.placeholder = T[lang][k];
