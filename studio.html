@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ethos Studio — Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f4f3f0; --surface: #ffffff; --border: rgba(0,0,0,0.1);
+      --text: #1a1a1a; --text-muted: #6b6b6b;
+      --teal: #0F6E56; --teal-bg: #E1F5EE; --teal-border: #5DCAA5;
+      --blue: #185FA5; --blue-bg: #E6F1FB;
+      --amber-bg: #FAEEDA; --amber: #633806;
+      --fontys: #4B2882;
+      --radius: 12px; --radius-sm: 8px;
+    }
+    body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── MAIN APP ── */
+    #app { display: block; }
+    .home-link { font-size: 12px; color: var(--blue); text-decoration: none; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--blue-bg); background: var(--blue-bg); }
+    .examples-toggle { font-size: 12px; color: var(--blue); background: none; border: none; cursor: pointer; font-family: 'Source Sans 3', sans-serif; padding: 0; margin-bottom: 0.75rem; text-decoration: underline; }
+    #cases-grid { display: none; margin-bottom: 0.75rem; }
+    #cases-grid.show { display: grid; }
+
+    /* ── HEADER ── */
+    header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 1rem 2rem; position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 16px; }
+    .logo { width: 34px; height: 34px; border-radius: 8px; background: var(--teal); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; }
+    .logo svg { width: 18px; height: 18px; stroke: white; fill: none; stroke-width: 2; }
+    header h1 { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; }
+    header p { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .lang-btn { padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border); background: #f8f8f6; font-family: 'Source Sans 3', sans-serif; font-size: 12px; cursor: pointer; color: var(--text-muted); transition: all 0.15s; }
+    .lang-btn.active { background: var(--teal); border-color: var(--teal); color: white; font-weight: 600; }
+    .help-link { font-size: 12px; color: var(--blue); text-decoration: none; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--blue-bg); background: var(--blue-bg); }
+
+    /* ── API BANNER ── */
+    .api-banner { background: #FAEEDA; border-bottom: 1px solid #EF9F27; padding: 8px 2rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .api-banner label { font-size: 13px; font-weight: 500; color: #633806; white-space: nowrap; }
+    .api-banner input { flex: 1; min-width: 240px; padding: 5px 10px; font-size: 13px; border: 1px solid #EF9F27; border-radius: 6px; background: white; font-family: monospace; }
+    .api-banner button { padding: 5px 12px; font-size: 13px; border-radius: 6px; background: #633806; color: white; border: none; cursor: pointer; font-family: 'Source Sans 3', sans-serif; }
+    .api-banner .saved { color: var(--teal); font-size: 13px; font-weight: 500; display: none; }
+    .api-banner .api-hint { font-size: 12px; color: #633806; }
+    .api-banner .api-hint a { color: #633806; }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.25rem; }
+    .panel-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 1rem; }
+
+    /* ── CONTEXT ── */
+    .ctx-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px; }
+    .ctx-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 1rem; }
+    @media (max-width: 600px) { .ctx-grid { grid-template-columns: repeat(2,1fr); } }
+    .ctx-btn { padding: 8px 6px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: #f8f8f6; font-family: 'Source Sans 3', sans-serif; font-size: 12px; cursor: pointer; color: var(--text-muted); text-align: center; transition: all 0.15s; line-height: 1.3; }
+    .ctx-btn:hover { background: var(--surface); border-color: rgba(0,0,0,0.2); }
+    .ctx-btn.active { background: var(--teal-bg); border-color: var(--teal-border); color: #04342C; font-weight: 600; }
+
+    /* ── TABS ── */
+    .tab-row { display: flex; gap: 4px; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .tab-btn { padding: 8px 16px; font-size: 13px; font-weight: 500; border: none; background: none; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; font-family: 'Source Sans 3', sans-serif; margin-bottom: -1px; transition: all 0.15s; }
+    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* ── CASES ── */
+    .cases-grid { display: grid; gap: 6px; }
+    .case-btn { width: 100%; text-align: left; background: #f8f8f6; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; cursor: pointer; font-family: 'Source Sans 3', sans-serif; font-size: 13px; color: var(--text); display: flex; align-items: center; gap: 10px; transition: all 0.15s; }
+    .case-btn:hover { background: var(--surface); border-color: rgba(0,0,0,0.2); }
+    .case-btn.active { background: var(--teal-bg); border-color: var(--teal-border); color: #04342C; }
+    .case-num { width: 22px; height: 22px; border-radius: 50%; background: rgba(0,0,0,0.07); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+    .case-btn.active .case-num { background: var(--teal); color: white; }
+
+    #custom-wrap { display: block; margin-top: 0; }
+    textarea { width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: var(--text); background: var(--surface); resize: vertical; min-height: 80px; }
+    textarea:focus { outline: none; border-color: var(--blue); }
+    #batch-input { min-height: 160px; font-size: 13px; }
+    .batch-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; line-height: 1.5; }
+
+    .gen-btn { width: 100%; margin-top: 1rem; padding: 12px; background: var(--blue); color: white; border: none; border-radius: var(--radius-sm); font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .gen-btn:hover { background: #0C447C; }
+    .gen-btn:disabled { background: #ccc; cursor: not-allowed; }
+
+    .loading { display: none; text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
+    .loading.show { display: block; }
+    .dots { display: inline-flex; gap: 4px; margin-bottom: 8px; }
+    .dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--blue); animation: dp 1.2s ease-in-out infinite; }
+    .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dp { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+
+    /* ── RESULT ── */
+    .result { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 1.25rem; }
+    .result.show { display: block; }
+    .result-header { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .result-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+    .ctx-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; background: var(--teal-bg); color: var(--teal); }
+    .result-body { padding: 1.5rem; }
+    .result-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; margin-bottom: 1rem; line-height: 1.3; }
+    .result-story { font-size: 15px; line-height: 1.8; margin-bottom: 1.25rem; }
+    .result-question { font-family: 'Playfair Display', serif; font-style: italic; font-size: 16px; color: var(--blue); padding: 1rem 1.25rem; background: var(--blue-bg); border-left: 3px solid #85B7EB; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; line-height: 1.5; margin-bottom: 1rem; }
+    .fixed-questions { background: var(--teal-bg); border-left: 3px solid var(--teal); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 0.75rem 1rem; margin-top: 0.75rem; }
+    .fixed-q { font-size: 14px; font-weight: 600; color: var(--teal); padding: 3px 0; }
+
+    .img-area { width: 100%; min-height: 260px; background: #f4f3f0; border-radius: var(--radius-sm); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--text-muted); font-size: 13px; margin: 1rem 0; border: 1px dashed var(--border); overflow: hidden; position: relative; }
+    .img-area svg { width: 32px; height: 32px; opacity: 0.4; }
+    .img-area img { width: 100%; max-height: 340px; object-fit: cover; border-radius: var(--radius-sm); display: block; }
+    .img-skeleton { width: 100%; height: 260px; background: linear-gradient(90deg,#ececea 25%,#f4f3f0 50%,#ececea 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: var(--radius-sm); }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .img-actions { display: flex; gap: 6px; margin-top: 6px; }
+    .img-refresh-btn { font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px; background: var(--surface); cursor: pointer; color: var(--text-muted); font-family: 'Source Sans 3', sans-serif; transition: all 0.15s; }
+    .img-refresh-btn:hover { border-color: var(--teal); color: var(--teal); }
+    .img-prompt-wrap { margin-top: 0.5rem; }
+    .img-prompt-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 6px; }
+    .img-prompt-box { font-size: 12px; color: var(--text-muted); line-height: 1.6; padding: 10px 12px; background: #f4f3f0; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+
+    .action-row { display: flex; gap: 8px; padding: 0 1.5rem 1.5rem; flex-wrap: wrap; }
+    .act-btn { flex: 1; min-width: 100px; padding: 9px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; font-family: 'Source Sans 3', sans-serif; font-size: 13px; cursor: pointer; color: var(--text); transition: all 0.15s; }
+    .act-btn:hover { background: #f4f3f0; }
+
+    /* ── BATCH ── */
+    .batch-progress { display: none; margin-top: 1rem; }
+    .batch-progress.show { display: block; }
+    .progress-bar-wrap { background: #f0f0ee; border-radius: 4px; height: 6px; margin: 8px 0; overflow: hidden; }
+    .progress-bar { height: 100%; background: var(--teal); border-radius: 4px; transition: width 0.3s; width: 0%; }
+    .progress-text { font-size: 12px; color: var(--text-muted); }
+    .batch-results { margin-top: 1rem; display: grid; gap: 0.75rem; }
+    .batch-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem 1.25rem; }
+    .batch-card-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; margin-bottom: 0.5rem; color: var(--teal); }
+    .batch-card-story { font-size: 13px; line-height: 1.7; color: var(--text); margin-bottom: 0.5rem; }
+    .batch-card-q { font-size: 13px; font-style: italic; color: var(--blue); margin-bottom: 0.5rem; }
+    .batch-card-status { font-size: 11px; color: var(--text-muted); }
+    .batch-export-row { display: flex; gap: 8px; margin-top: 1rem; }
+
+    /* ── EXISTING ── */
+    .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 0.75rem; }
+    .ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 0.75rem; overflow: hidden; }
+    .ex-header { padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+    .ex-header:hover { background: #fafaf8; }
+    .ex-title { font-family: 'Playfair Display', serif; font-size: 15px; font-weight: 600; }
+    .ex-arrow { font-size: 14px; color: var(--text-muted); transition: transform 0.2s; }
+    .ex-card.open .ex-arrow { transform: rotate(180deg); }
+    .ex-body { display: none; padding: 0 1.25rem 1.25rem; }
+    .ex-card.open .ex-body { display: block; }
+    .ex-text { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 0.75rem; }
+    .ex-q { font-family: 'Playfair Display', serif; font-style: italic; font-size: 14px; color: var(--blue); padding: 0.75rem 1rem; background: var(--blue-bg); border-left: 2px solid #85B7EB; border-radius: 0 6px 6px 0; margin-bottom: 0.75rem; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: #f4f3f0; color: var(--text-muted); border: 1px solid var(--border); }
+
+    /* ── FOOTER ── */
+    .app-footer { background: #0a3d2e; color: rgba(255,255,255,0.7); padding: 2rem; margin-top: 3rem; }
+    .footer-inner { max-width: 860px; margin: 0 auto; display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; justify-content: space-between; }
+    .footer-brand { display: flex; align-items: center; gap: 12px; }
+    .footer-brand img { height: 32px; filter: brightness(0) invert(1); opacity: 0.7; }
+    .footer-info .name { font-size: 13px; font-weight: 600; color: white; }
+    .footer-info .role { font-size: 12px; opacity: 0.6; }
+    .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+    .footer-link { font-size: 12px; color: rgba(255,255,255,0.6); text-decoration: none; display: flex; align-items: center; gap: 5px; }
+    .footer-link:hover { color: white; }
+    .footer-copy { font-size: 11px; opacity: 0.4; width: 100%; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app">
+  <header>
+    <div class="logo" onclick="window.location.href='index.html'" title="Startpagina">
+      <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    </div>
+    <div>
+      <h1>Ethos Studio</h1>
+      <p data-i18n="subtitle">Moreel beraad · Ethisch leren</p>
+    </div>
+    <div class="header-right">
+      <a class="home-link" href="index.html" data-i18n="homeLink">← Start</a>
+      <a class="help-link" href="ethos_studio_handleiding.html" target="_blank" data-i18n="help">? Handleiding</a>
+      <button class="lang-btn active" id="lang-nl" onclick="setLang('nl')">🇳🇱 NL</button>
+      <button class="lang-btn" id="lang-en" onclick="setLang('en')">🇬🇧 EN</button>
+    </div>
+  </header>
+
+  <div class="api-banner">
+    <label for="api-input" data-i18n="apiLabel">🔑 Anthropic API-key:</label>
+    <input type="password" id="api-input" placeholder="sk-ant-api03-..." autocomplete="off"/>
+    <button onclick="saveKey()" data-i18n="apiSave">Opslaan</button>
+    <span class="saved" id="key-saved" data-i18n="apiSaved">✓ Opgeslagen voor deze sessie</span>
+    <span class="api-hint"><span data-i18n="apiHint">Geen key? Maak gratis een account aan op</span> <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></span>
+  </div>
+
+  <div class="container">
+    <div class="panel">
+      <div class="panel-title" data-i18n="panelTitle">Nieuwe kaart(en) genereren</div>
+      <div class="ctx-label" data-i18n="ctxLabel">Sector / context</div>
+      <div class="ctx-grid">
+        <button class="ctx-btn active" id="ctx-hospital" onclick="setCtx('hospital')">🏥 <span data-i18n="ctx_hospital">Ziekenhuis</span></button>
+        <button class="ctx-btn" id="ctx-care" onclick="setCtx('care')">💊 <span data-i18n="ctx_care">Zorg</span></button>
+        <button class="ctx-btn" id="ctx-education" onclick="setCtx('education')">🎓 <span data-i18n="ctx_education">Onderwijs</span></button>
+        <button class="ctx-btn" id="ctx-defence" onclick="setCtx('defence')">🪖 <span data-i18n="ctx_defence">Defensie</span></button>
+        <button class="ctx-btn" id="ctx-business" onclick="setCtx('business')">💼 <span data-i18n="ctx_business">Bedrijf</span></button>
+        <button class="ctx-btn" id="ctx-welfare" onclick="setCtx('welfare')">🤝 <span data-i18n="ctx_welfare">Welzijn</span></button>
+        <button class="ctx-btn" id="ctx-government" onclick="setCtx('government')">🏛️ <span data-i18n="ctx_government">Overheid</span></button>
+        <button class="ctx-btn" id="ctx-general" onclick="setCtx('general')">🌍 <span data-i18n="ctx_general">Algemeen</span></button>
+      </div>
+      <div class="tab-row">
+        <button class="tab-btn active" id="tab-single-btn" onclick="switchTab('single')" data-i18n="tabSingle">Één kaart</button>
+        <button class="tab-btn" id="tab-batch-btn" onclick="switchTab('batch')" data-i18n="tabBatch">Batch (meerdere)</button>
+      </div>
+      <div class="tab-pane active" id="tab-single">
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;line-height:1.6" data-i18n="singleIntro">Omschrijf je eigen situatie in 2–3 zinnen. De app schrijft er een volledig verhaal van.</p>
+        <div id="custom-wrap">
+          <textarea id="custom-topic" data-i18n-placeholder="customPlaceholder"></textarea>
+        </div>
+        <button type="button" class="examples-toggle" id="examples-toggle" onclick="toggleExamples()" data-i18n="showExamples">Of kies een voorbeeldcasus ▾</button>
+        <div class="cases-grid" id="cases-grid"></div>
+        <button class="gen-btn" id="gen-btn" onclick="generate()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          <span data-i18n="genBtn">Genereer gesprekskaart</span>
+        </button>
+      </div>
+      <div class="tab-pane" id="tab-batch">
+        <p class="batch-hint" data-i18n="batchHint">Voer meerdere onderwerpen in — één per regel. Max. 15.</p>
+        <textarea id="batch-input" data-i18n-placeholder="batchPlaceholder"></textarea>
+        <button class="gen-btn" id="batch-btn" onclick="generateBatch()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+          <span data-i18n="batchBtn">Genereer alle kaarten</span>
+        </button>
+        <div class="batch-progress" id="batch-progress">
+          <div class="progress-text" id="progress-text"></div>
+          <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+        </div>
+        <div class="batch-results" id="batch-results"></div>
+        <div class="batch-export-row" id="batch-export-row" style="display:none">
+          <button class="act-btn" onclick="exportBatchPDF()" data-i18n="exportAllPdf">📄 Exporteer alle als PDF</button>
+          <button class="act-btn" onclick="clearBatch()" data-i18n="clearBatch">Wissen ✕</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="dots"><span></span><span></span><span></span></div>
+      <div data-i18n="generating">Kaart wordt gegenereerd...</div>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-header">
+        <span class="result-label" data-i18n="resultLabel">Gesprekskaart</span>
+        <span class="ctx-tag" id="ctx-tag"></span>
+      </div>
+      <div class="result-body">
+        <div class="img-area" id="img-area">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
+          <span data-i18n="imgPlaceholder">Afbeelding verschijnt automatisch na generatie...</span>
+        </div>
+        <div class="img-actions" id="img-actions" style="display:none">
+          <button class="img-refresh-btn" onclick="regenerateImage()" data-i18n="imgRefresh">↻ Andere afbeelding</button>
+          <span style="font-size:11px;color:var(--text-muted);align-self:center" data-i18n="imgCredit">via Pollinations.ai</span>
+        </div>
+        <div class="result-title" id="r-title"></div>
+        <div class="result-story" id="r-story"></div>
+        <div class="result-question" id="r-question"></div>
+        <div class="fixed-questions">
+          <div class="fixed-q" data-i18n="fq1">Wat zou jij doen en waarom?</div>
+          <div class="fixed-q" data-i18n="fq2">Welke waarden zijn hier in het spel?</div>
+        </div>
+        <div class="img-prompt-wrap" id="img-prompt-wrap" style="display:none">
+          <div class="img-prompt-label" data-i18n="promptLabel">Afbeeldingsprompt</div>
+          <div class="img-prompt-box" id="img-prompt-box"></div>
+        </div>
+      </div>
+      <div class="action-row">
+        <button class="act-btn" onclick="copyCard(this)" data-i18n="copy">Kopiëren</button>
+        <button class="act-btn" onclick="copyFireflyPrompt(this)" data-i18n="copyFirefly">🎨 Firefly</button>
+        <button class="act-btn" onclick="exportPDF()" data-i18n="exportPdf">📄 PDF</button>
+        <button class="act-btn" onclick="generate()" data-i18n="regenerate">Opnieuw ↺</button>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem">
+        <div class="section-label" data-i18n="existingLabel">Voorbeeldcasussen (ter inspiratie)</div>
+        <button class="act-btn" style="width:auto;padding:6px 14px;font-size:12px" onclick="exportAllPDF()" data-i18n="exportAllPdf">📄 Exporteer alle als PDF</button>
+      </div>
+      <div id="existing"></div>
+    </div>
+  </div>
+
+    <footer class="app-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img src="data:image/png;base64,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" alt="Fontys"/>
+        <div class="footer-info">
+          <div class="name">Richard Voddé MCC</div>
+          <div class="role">Docent onderzoeker · Lectoraat Ethisch Werken · Fontys HRM en TP</div>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a class="footer-link" href="https://www.linkedin.com/company/lectoraat-ethisch-werken/" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+          LinkedIn
+        </a>
+        <a class="footer-link" href="https://open.spotify.com/show/3ruFk8YKoWNeLvePr3BUZy?si=91834e44105c4f7b" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+          Podcast Ethisch Werken
+        </a>
+        <a class="footer-link" href="ethos_studio_handleiding.html" target="_blank">? Handleiding</a>
+      </div>
+      <div class="footer-copy">Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP · Comenius Innovatieproject</div>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// TRANSLATIONS
+// ══════════════════════════════════════════════════════
+const T = {
+  nl: {
+    subtitle: 'Moreel beraad · Ethisch leren', help: '? Handleiding', homeLink: '← Start',
+    apiLabel: '🔑 Anthropic API-key:', apiSave: 'Opslaan',
+    apiSaved: '✓ Opgeslagen voor deze sessie',
+    apiHint: 'Geen key? Maak gratis een account aan op',
+    panelTitle: 'Nieuwe kaart(en) genereren', ctxLabel: 'Sector / context',
+    ctx_hospital: 'Ziekenhuis', ctx_care: 'Zorg', ctx_education: 'Onderwijs',
+    ctx_defence: 'Defensie', ctx_business: 'Bedrijf', ctx_welfare: 'Welzijn',
+    ctx_government: 'Overheid', ctx_general: 'Algemeen',
+    tabSingle: 'Één kaart', tabBatch: 'Batch (meerdere)',
+    singleIntro: 'Omschrijf je eigen situatie in 2–3 zinnen. De app schrijft er een volledig verhaal van. Gebruik de voorbeelden hieronder alleen als inspiratie.',
+    customPlaceholder: 'Omschrijf de situatie in 2–3 zinnen. Bijv.: "Een verpleegkundige ziet dat haar collega een fout maakt maar wil de sfeer niet verstoren." De app schrijft er een volledig verhaal van.',
+    genBtn: 'Genereer gesprekskaart',
+    batchHint: 'Voer meerdere onderwerpen in — één per regel. Max. 15 kaarten per keer.',
+    batchPlaceholder: 'Bijv.:\nEen verpleegkundige die twijfelt of ze een fout moet melden\nEen docent die een student betrapt op fraude\nEen manager die moet bezuinigen op zijn eigen team',
+    batchBtn: 'Genereer alle kaarten',
+    exportAllPdf: '📄 Exporteer alle als PDF', clearBatch: 'Wissen ✕',
+    generating: 'Kaart wordt gegenereerd...',
+    batchProgress: (i,n) => `Kaart ${i} van ${n} wordt gegenereerd...`,
+    batchDone: (ok,n) => `✓ ${ok} van ${n} kaarten gegenereerd.`,
+    batchGenerated: '✓ Gegenereerd',
+    resultLabel: 'Gesprekskaart',
+    imgPlaceholder: 'Afbeelding verschijnt automatisch na generatie...',
+    imgRefresh: '↻ Andere afbeelding', imgCredit: 'via Pollinations.ai (gratis)',
+    promptLabel: 'Afbeeldingsprompt (Pollinations / Firefly / DALL·E)',
+    fq1: 'Wat zou jij doen en waarom?', fq2: 'Welke waarden zijn hier in het spel?',
+    copy: 'Kopiëren', copyFirefly: '🎨 Firefly', exportPdf: '📄 PDF', regenerate: 'Opnieuw ↺',
+    existingLabel: 'Voorbeeldcasussen (ter inspiratie)',
+    showExamples: 'Of kies een voorbeeldcasus ▾',
+    hideExamples: 'Voorbeelden verbergen ▴',
+    ownTopic: 'Eigen situatie omschrijven...',
+    alertKey: 'Voer eerst je Anthropic API-key in bovenaan de pagina.',
+    alertEmpty: 'Voer minimaal één onderwerp in.', alertMax: 'Maximum 15 kaarten per batch.',
+    alertNoCards: 'Geen kaarten om te exporteren.', alertNoCard: 'Genereer eerst een gesprekskaart.',
+    copied: '✓ Gekopieerd',
+    pdfHeader: 'GESPREKSKAART', pdfFooter: 'Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP',
+    pdfImgText: 'Voeg hier een afbeelding in', pdfImgSub: '(Firefly · DALL·E · stockfoto)',
+  },
+  en: {
+    subtitle: 'Moral deliberation · Ethical learning', help: '? User guide', homeLink: '← Home',
+    apiLabel: '🔑 Anthropic API key:', apiSave: 'Save',
+    apiSaved: '✓ Saved for this session',
+    apiHint: 'No key? Create a free account at',
+    panelTitle: 'Generate card(s)', ctxLabel: 'Sector / context',
+    ctx_hospital: 'Hospital', ctx_care: 'Healthcare', ctx_education: 'Education',
+    ctx_defence: 'Defence', ctx_business: 'Business', ctx_welfare: 'Social work',
+    ctx_government: 'Government', ctx_general: 'General',
+    tabSingle: 'Single card', tabBatch: 'Batch (multiple)',
+    singleIntro: 'Describe your own situation in 2–3 sentences. The app writes a full story from it. Use the examples below for inspiration only.',
+    customPlaceholder: 'Describe the situation in 2–3 sentences. E.g.: "A nurse sees her colleague make a mistake but does not want to damage the team atmosphere." The app turns it into a full story.',
+    genBtn: 'Generate conversation card',
+    batchHint: 'Enter multiple topics — one per line. Max. 15 cards per run.',
+    batchPlaceholder: 'E.g.:\nA nurse who wonders whether to report a mistake\nA teacher who catches a student cheating\nA manager who must cut costs within their own team',
+    batchBtn: 'Generate all cards',
+    exportAllPdf: '📄 Export all as PDF', clearBatch: 'Clear ✕',
+    generating: 'Generating card...',
+    batchProgress: (i,n) => `Generating card ${i} of ${n}...`,
+    batchDone: (ok,n) => `✓ ${ok} of ${n} cards generated.`,
+    batchGenerated: '✓ Generated',
+    resultLabel: 'Conversation card',
+    imgPlaceholder: 'Image appears automatically after generation...',
+    imgRefresh: '↻ Different image', imgCredit: 'via Pollinations.ai (free)',
+    promptLabel: 'Image prompt (Pollinations / Firefly / DALL·E)',
+    fq1: 'What would you do and why?', fq2: 'What values are at stake here?',
+    copy: 'Copy', copyFirefly: '🎨 Firefly', exportPdf: '📄 PDF', regenerate: 'Regenerate ↺',
+    existingLabel: 'Example cases (for inspiration)',
+    showExamples: 'Or pick an example case ▾',
+    hideExamples: 'Hide examples ▴',
+    ownTopic: 'Describe your own situation...',
+    alertKey: 'Please enter your Anthropic API key at the top of the page first.',
+    alertEmpty: 'Please enter at least one topic.', alertMax: 'Maximum 15 cards per batch.',
+    alertNoCards: 'No cards to export.', alertNoCard: 'Please generate a card first.',
+    copied: '✓ Copied',
+    pdfHeader: 'CONVERSATION CARD', pdfFooter: 'Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP',
+    pdfImgText: 'Insert an image here', pdfImgSub: '(Firefly · DALL·E · stock photo)',
+  }
+};
+
+const CTX_DESC = {
+  nl: {
+    hospital: 'moderne Nederlandse ziekenhuisomgeving, professionele zorgverleners (verpleegkundige, arts, specialist)',
+    care: 'zorginstelling: GGZ, VVT, huisartsenpraktijk of thuiszorg',
+    education: 'school- of universitaire setting, rollen: docent, student, teamleider, ouder',
+    defence: 'militaire of civiele defensieomgeving, hiërarchie en veiligheid centraal',
+    business: 'kantoor- of organisatiesetting, rollen: medewerker, leidinggevende, HR, klant',
+    welfare: 'maatschappelijke dienstverlening, jeugdzorg of sociale wijkteams',
+    government: 'publieke sector, gemeente of uitvoeringsorganisatie',
+    general: 'neutrale alledaagse setting (thuis, straat, buurt)'
+  },
+  en: {
+    hospital: 'modern hospital environment, professional healthcare workers (nurse, doctor, specialist)',
+    care: 'healthcare setting: mental health, elderly care, GP practice or home care',
+    education: 'school or university setting, roles: teacher, student, team leader, parent',
+    defence: 'military or civilian defence environment, hierarchy and safety central',
+    business: 'office or organisational setting, roles: employee, manager, HR, client',
+    welfare: 'social services, youth care or community welfare teams',
+    government: 'public sector, municipality or government agency',
+    general: 'neutral everyday setting (home, street, neighbourhood)'
+  }
+};
+
+const CTX_IMG = {
+  hospital: 'modern hospital interior, warm clinical light, professional healthcare workers, cinematic depth of field',
+  care: 'care home or community health setting, warm light, compassionate caregiver, cinematic photography',
+  education: 'university classroom, natural light, students and teacher in discussion, cinematic depth of field',
+  defence: 'military setting, disciplined atmosphere, uniformed personnel, dramatic cinematic lighting',
+  business: 'modern office, professional colleagues in discussion, natural light, cinematic depth of field',
+  welfare: 'social work setting, community centre, warm empathetic atmosphere, cinematic photography',
+  government: 'government office, formal professional setting, natural light, cinematic photography',
+  general: 'everyday neutral setting, street or home, authentic human moment, cinematic lighting'
+};
+
+const CASES = {
+  nl: [
+    { title: 'De gebroken heup en de kwetsbare wil', text: 'Meneer Hendriks (90) ligt in de witte lakens van kamer 12. Hij is gisteren gevallen; een gebroken heup. Hoewel de dementie langzaam de regie overneemt, is hij vandaag helder. "Ik wil weer lopen, zuster," zegt hij vastberaden. Zijn kinderen staan om het bed. "Vader moet geopereerd worden," zegt zijn zoon. De verpleegkundige ziet echter de enorme risico\'s: de kans op een delier, de zware revalidatie en het risico dat hij na de narcose nooit meer de oude wordt. De orthopeed twijfelt; is opereren hier nog wel menswaardig?', question: 'Wat vind jij hier Passende Zorg — en wie heeft hier het laatste woord?', values: ['Autonomie','Menswaardige zorg','Medische proportionaliteit','Familie'] },
+    { title: 'De grens van de pomp', text: 'Op kamer 4 ligt mevrouw Jansen (82). Het is stil, op het zachte gezoem van de morfinepomp na. Ze ademt rustig, haar gezicht oogt ontspannen. Maar voor haar kinderen, die al drie nachten waken, is de rek eruit. "Kan de pomp niet omhoog?" vraagt haar dochter met betraande ogen. De verpleegkundige controleert de vitale functies; mevrouw ligt er comfortabel bij. Het ophogen van de morfine zonder medische noodzaak grenst aan euthanasie.', question: 'Wiens lijden weegt het zwaarst — en wie beslist dat?', values: ['Palliatieve zorg','Euthanasie vs sedatie','Familiebelangen','Professionele standaard'] },
+    { title: 'De rek is eruit', text: 'Het is 10:00 uur en de gang van de afdeling voelt als een snelweg. Eén verpleegkundige loopt voor zes patiënten. De geplande douchebeurten zijn alweer geschrapt. "Ik voel me een fabriekswerker," verzucht een collega. Dan komt het bericht: de bezetting op een andere afdeling is kritiek, er moet iemand worden afgestaan. Juist nu het team hoopte op een moment om eindelijk die ene eenzame patiënt een echt gesprek te bieden.', question: 'Waar leg jij de grens — en wanneer wordt solidariteit zelfopoffering?', values: ['Kwaliteit van zorg','Solidariteit','Werkdruk','Teamwelzijn'] },
+    { title: 'Het niet-pluis gevoel in de nacht', text: '03:15 uur. De lichten op de gang zijn gedimd, maar bij patiënt Bakker klopt er iets niet. Hij is onrustig, klam, en zijn hartslag vertoont grillige pieken. De verpleegkundige vertrouwt het niet; dit is cardiaal. Ze belt de dienstdoende. De reactie is kortaf: "Bel de cardioloog maar direct, daar ga ik niet over." Volgens protocol moet de hoofdbehandelaar de consulten regelen. Elke minuut telt.', question: 'Wanneer is het doorbreken van hiërarchie een plicht in plaats van een keuze?', values: ['Patiëntveiligheid','Hiërarchie & protocol','Professionele autonomie','Samenwerking'] }
+  ],
+  en: [
+    { title: 'The broken hip and the fragile will', text: 'Mr Hendriks (90) lies in the white sheets of room 12. He fell yesterday — a broken hip. Although dementia is slowly taking over, he is lucid today. "I want to walk again, nurse," he says firmly. His children stand around the bed. "Dad needs surgery," says his son. But the nurse sees enormous risks: the chance of delirium, the heavy rehabilitation, and the risk he may never recover after anaesthesia. The orthopaedic surgeon hesitates.', question: 'What do you consider appropriate care here — and who has the final say?', values: ['Autonomy','Dignified care','Medical proportionality','Family'] },
+    { title: 'The limit of the pump', text: 'Mrs Jansen (82) lies in room 4. The only sound is the soft hum of the morphine pump. She breathes quietly, her face looks at peace. But her children, keeping vigil for three nights, have reached their limit. "Can\'t the pump go up?" asks her daughter through tears. The nurse checks the vital signs: Mrs Jansen is comfortable. Increasing the morphine without medical necessity borders on euthanasia.', question: 'Whose suffering weighs heaviest — and who decides that?', values: ['Palliative care','Euthanasia vs sedation','Family interests','Professional standards'] },
+    { title: 'At the breaking point', text: 'It is 10:00 and the ward corridor feels like a motorway. One nurse is caring for six patients. The planned showers have been cancelled again. "I feel like a factory worker," sighs a colleague. Then the message arrives: staffing on another ward is critical and someone must be transferred. Just as the team had hoped to finally have a real conversation with that lonely patient.', question: 'Where do you draw the line — and when does solidarity become self-sacrifice?', values: ['Quality of care','Solidarity','Workload','Team wellbeing'] },
+    { title: 'The uneasy feeling in the night', text: '03:15. The corridor lights are dimmed, but something is wrong with patient Bakker. He is restless, clammy, his heart rate shows erratic peaks. The nurse\'s instinct says: cardiac. She calls the on-call consultant. The response is curt: "Call the cardiologist directly, that\'s not my domain." Yet protocol requires the consultant to arrange referrals. Every minute counts.', question: 'When does breaking the hierarchy become a duty rather than a choice?', values: ['Patient safety','Hierarchy & protocol','Professional autonomy','Collaboration'] }
+  ]
+};
+
+// ══ STATE ══
+let lang = 'nl', apiKey = '', ctx = 'hospital', selectedCase = -1, lastCard = null, batchCards = [];
+let currentImagePrompt = '', examplesOpen = false;
+
+function t(key) { return T[lang][key] || key; }
+
+function applyTranslations() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (T[lang][k] !== undefined) el.textContent = T[lang][k];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const k = el.getAttribute('data-i18n-placeholder');
+    if (T[lang][k] !== undefined) el.placeholder = T[lang][k];
+  });
+  document.getElementById('lang-nl').className = 'lang-btn' + (lang==='nl'?' active':'');
+  document.getElementById('lang-en').className = 'lang-btn' + (lang==='en'?' active':'');
+  document.documentElement.lang = lang;
+  renderCaseButtons();
+  renderExisting();
+}
+
+function setLang(l) { lang = l; applyTranslations(); }
+function saveKey() {
+  apiKey = document.getElementById('api-input').value.trim();
+  if (apiKey) {
+    try { sessionStorage.setItem('ethos_api_key', apiKey); } catch (e) {}
+    document.getElementById('key-saved').style.display = 'inline';
+    setTimeout(() => document.getElementById('key-saved').style.display = 'none', 3000);
+  }
+}
+try {
+  const savedKey = sessionStorage.getItem('ethos_api_key');
+  if (savedKey) {
+    apiKey = savedKey;
+    const apiInput = document.getElementById('api-input');
+    if (apiInput) apiInput.value = savedKey;
+  }
+} catch (e) {}
+function setCtx(c) {
+  ctx = c;
+  document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('ctx-'+c).classList.add('active');
+}
+function switchTab(tab) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.getElementById('tab-'+tab+'-btn').classList.add('active');
+}
+function renderCaseButtons() {
+  const cases = CASES[lang];
+  selectedCase = cases.length;
+  document.getElementById('cases-grid').innerHTML = cases.map((c,i) =>
+    `<button class="case-btn" onclick="pick(${i},this)"><span class="case-num">${i+1}</span>${c.title}</button>`
+  ).join('');
+}
+function toggleExamples() {
+  examplesOpen = !examplesOpen;
+  document.getElementById('cases-grid').classList.toggle('show', examplesOpen);
+  const btn = document.getElementById('examples-toggle');
+  if (btn) btn.textContent = t(examplesOpen ? 'hideExamples' : 'showExamples');
+}
+function pick(i, btn) {
+  selectedCase = i;
+  document.querySelectorAll('.case-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const cases = CASES[lang];
+  if (i < cases.length) {
+    document.getElementById('custom-topic').value = `${cases[i].title}\n\n${cases[i].text}`;
+  }
+}
+function buildPrompt(source) {
+  return lang==='nl'
+    ? `Je bent expert in het schrijven van gesprekskaarten voor moreel beraad.
+
+Schrijf een gesprekskaart op basis van onderstaande casus. Regels:
+- Max 150 woorden (verhaal, exclusief titel en afsluitvraag)
+- Herkenbare situatie → moreel dilemma
+- Toon: empathisch, prikkelend, uitnodigend
+- Sluit af met PRECIES één krachtige open vraag
+- Schrijftaal: Nederlands
+- Setting: ${CTX_DESC.nl[ctx]}
+
+Geef UITSLUITEND geldig JSON, geen markdown:
+{"title":"max 8 woorden","story":"max 150 woorden","closing_question":"één open vraag","image_prompt":"English cinematic photo prompt, no text, ${CTX_IMG[ctx]}, focus on emotion"}
+
+CASUS:
+${source}`
+    : `You are an expert in writing conversation cards for moral deliberation.
+
+Write a conversation card based on the case below. Rules:
+- Max 150 words (story only)
+- Recognisable situation leading to a moral dilemma
+- Tone: empathetic, thought-provoking
+- End with EXACTLY one powerful open question
+- Language: English
+- Setting: ${CTX_DESC.en[ctx]}
+
+Respond ONLY with valid JSON, no markdown:
+{"title":"max 8 words","story":"max 150 words","closing_question":"one open question","image_prompt":"English cinematic photo prompt, no text, ${CTX_IMG[ctx]}, focus on emotion"}
+
+CASE:
+${source}`;
+}
+function parseCardResponse(raw) {
+  const cleaned = raw.replace(/```json|```/g, '').trim();
+  try { return JSON.parse(cleaned); } catch (e) {}
+  const match = cleaned.match(/\{[\s\S]*\}/);
+  if (match) return JSON.parse(match[0]);
+  throw new Error(lang === 'nl' ? 'Ongeldige JSON van API' : 'Invalid JSON from API');
+}
+async function fetchAPI(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message||'API error');
+  return data.content.map(i=>i.text||'').join('');
+}
+async function callAPI(prompt) {
+  const retryNote = lang === 'nl'
+    ? '\n\nGeef UITSLUITEND één geldig JSON-object terug. Geen markdown, geen uitleg.'
+    : '\n\nReturn ONLY one valid JSON object. No markdown, no commentary.';
+  try {
+    return parseCardResponse(await fetchAPI(prompt));
+  } catch (firstErr) {
+    return parseCardResponse(await fetchAPI(prompt + retryNote));
+  }
+}
+function buildFireflyPrompt(imagePrompt) {
+  if (!imagePrompt) return '';
+  return `${imagePrompt}, professional editorial photography, cinematic natural lighting, shallow depth of field, diverse authentic people, photorealistic, no text, no watermark, no logo, no letters`;
+}
+async function generate() {
+  if (!apiKey) { alert(t('alertKey')); return; }
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('loading').classList.add('show');
+  try {
+    const cases = CASES[lang];
+    const custom = (document.getElementById('custom-topic').value || '').trim();
+    const source = (selectedCase >= 0 && selectedCase < cases.length && !custom)
+      ? `Title: ${cases[selectedCase].title}\n\n${cases[selectedCase].text}`
+      : (custom || 'a moral dilemma');
+    const parsed = await callAPI(buildPrompt(source));
+    lastCard = parsed;
+    showCard(parsed);
+  } catch(err) {
+    document.getElementById('loading').classList.remove('show');
+    alert('Error: '+err.message);
+  }
+  btn.disabled = false;
+}
+async function generateBatch() {
+  if (!apiKey) { alert(t('alertKey')); return; }
+  const topics = document.getElementById('batch-input').value.trim().split('\n').map(l=>l.trim()).filter(l=>l.length>3);
+  if (!topics.length) { alert(t('alertEmpty')); return; }
+  if (topics.length>15) { alert(t('alertMax')); return; }
+  batchCards = [];
+  document.getElementById('batch-btn').disabled = true;
+  document.getElementById('batch-results').innerHTML = '';
+  document.getElementById('batch-export-row').style.display = 'none';
+  const progress = document.getElementById('batch-progress');
+  const bar = document.getElementById('progress-bar');
+  const txt = document.getElementById('progress-text');
+  progress.classList.add('show');
+  for (let i=0;i<topics.length;i++) {
+    txt.textContent = t('batchProgress')(i+1, topics.length);
+    bar.style.width = ((i/topics.length)*100)+'%';
+    const ph = document.createElement('div');
+    ph.className = 'batch-card'; ph.id = 'bc-'+i;
+    ph.innerHTML = `<div class="batch-card-status">⏳ ${topics[i]}</div>`;
+    document.getElementById('batch-results').appendChild(ph);
+    try {
+      const card = await callAPI(buildPrompt(topics[i]));
+      batchCards.push(card);
+      document.getElementById('bc-'+i).innerHTML = `<div class="batch-card-title">${card.title}</div><div class="batch-card-story">${card.story}</div><div class="batch-card-q">${card.closing_question}</div><div class="batch-card-status" style="color:var(--teal)">${t('batchGenerated')}</div>`;
+    } catch(err) {
+      batchCards.push(null);
+      document.getElementById('bc-'+i).innerHTML = `<div class="batch-card-status" style="color:#c00">✗ ${err.message}</div>`;
+    }
+    if (i<topics.length-1) await new Promise(r=>setTimeout(r,600));
+  }
+  bar.style.width='100%';
+  txt.textContent = t('batchDone')(batchCards.filter(Boolean).length, topics.length);
+  document.getElementById('batch-export-row').style.display='flex';
+  document.getElementById('batch-btn').disabled=false;
+}
+function clearBatch() {
+  batchCards=[];
+  document.getElementById('batch-results').innerHTML='';
+  document.getElementById('batch-export-row').style.display='none';
+  document.getElementById('batch-progress').classList.remove('show');
+  document.getElementById('batch-input').value='';
+}
+async function exportBatchPDF() {
+  const cards = batchCards.filter(Boolean);
+  if (!cards.length) { alert(t('alertNoCards')); return; }
+  await renderCardToPDF(cards);
+}
+function buildPollinationsUrl(prompt) {
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt+', no text, no watermark, no logo')}?width=800&height=500&nologo=true&seed=${Math.floor(Math.random()*99999)}`;
+}
+function loadImage(prompt) {
+  currentImagePrompt = prompt;
+  const area = document.getElementById('img-area');
+  const actions = document.getElementById('img-actions');
+  area.innerHTML = '<div class="img-skeleton"></div>';
+  area.style.border = 'none';
+  actions.style.display = 'none';
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    area.innerHTML = '';
+    area.appendChild(img);
+    actions.style.display = 'flex';
+    applyTranslations();
+  };
+  img.onerror = () => {
+    area.innerHTML = `<span style="font-size:12px;color:var(--text-muted)">${lang==='nl'?'Afbeelding kon niet worden geladen':'Image could not be loaded'}</span>`;
+    area.style.border = '1px dashed var(--border)';
+    actions.style.display = 'flex';
+  };
+  img.src = buildPollinationsUrl(prompt);
+  img.style.cssText = 'width:100%;max-height:340px;object-fit:cover;border-radius:var(--radius-sm);display:block;';
+}
+function regenerateImage() { if (currentImagePrompt) loadImage(currentImagePrompt); }
+function showCard(p) {
+  document.getElementById('loading').classList.remove('show');
+  document.getElementById('r-title').textContent = p.title||'';
+  document.getElementById('r-story').textContent = p.story||'';
+  document.getElementById('r-question').textContent = p.closing_question||'';
+  document.getElementById('ctx-tag').textContent = t('ctx_'+ctx);
+  const area = document.getElementById('img-area');
+  area.innerHTML = '<div class="img-skeleton"></div>';
+  area.style.border = 'none';
+  document.getElementById('img-actions').style.display = 'none';
+  if (p.image_prompt) {
+    document.getElementById('img-prompt-box').textContent = p.image_prompt;
+    document.getElementById('img-prompt-wrap').style.display = 'block';
+    loadImage(p.image_prompt);
+  }
+  document.getElementById('result').classList.add('show');
+}
+function flashCopied(btn) {
+  const orig = btn.textContent;
+  btn.textContent = t('copied');
+  setTimeout(() => { btn.textContent = orig; }, 2000);
+}
+function copyCard(btn) {
+  if (!lastCard) return;
+  const text = [lastCard.title,'',lastCard.story,'',lastCard.closing_question,'',t('fq1'),t('fq2')].join('\n');
+  navigator.clipboard.writeText(text).then(() => flashCopied(btn));
+}
+function copyFireflyPrompt(btn) {
+  if (!lastCard?.image_prompt) return;
+  navigator.clipboard.writeText(buildFireflyPrompt(lastCard.image_prompt)).then(() => flashCopied(btn));
+}
+async function exportPDF() {
+  if (!lastCard) { alert(t('alertNoCard')); return; }
+  const card = { ...lastCard };
+  const imgEl = document.querySelector('#img-area img');
+  if (imgEl?.complete && imgEl.naturalWidth > 0) {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = imgEl.naturalWidth;
+      canvas.height = imgEl.naturalHeight;
+      canvas.getContext('2d').drawImage(imgEl, 0, 0);
+      card._imageDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+    } catch (e) {}
+  }
+  await renderCardToPDF([card]);
+}
+async function exportAllPDF() {
+  const cards = CASES[lang].map(c=>({title:c.title,story:c.text,closing_question:c.question,image_prompt:null}));
+  await renderCardToPDF(cards);
+}
+function fetchImageDataUrl(prompt) {
+  return new Promise(resolve => {
+    if (!prompt) { resolve(null); return; }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      } catch (e) { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = buildPollinationsUrl(prompt);
+  });
+}
+async function renderCardToPDF(cards) {
+  const {jsPDF} = window.jspdf;
+  const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  const pageW=210,pageH=297,marginL=20,marginR=20,contentW=170;
+  const teal=[15,110,86],tealLight=[225,245,238],tealBorder=[93,202,165];
+  const blueLight=[230,241,251],blueBorder=[133,183,235];
+  const darkGrey=[40,40,40],midGrey=[100,100,100],white=[255,255,255];
+  const imageDataUrls = await Promise.all(cards.map(card =>
+    card._imageDataUrl ? Promise.resolve(card._imageDataUrl) : fetchImageDataUrl(card.image_prompt)
+  ));
+  cards.forEach((card,idx) => {
+    if (idx>0) doc.addPage();
+    let y=22;
+    doc.setFillColor(...teal); doc.rect(0,0,pageW,12,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...white);
+    doc.text(t('pdfHeader'),marginL,8);
+    doc.setFont('helvetica','normal'); doc.setFontSize(8);
+    doc.text((t('ctx_'+ctx)||ctx)+' · Ethos Studio',pageW-marginR,8,{align:'right'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(...teal);
+    const titleLines = doc.splitTextToSize(card.title||'',contentW);
+    doc.text(titleLines,marginL,y); y+=titleLines.length*8+4;
+    doc.setDrawColor(...tealBorder); doc.setLineWidth(0.4);
+    doc.line(marginL,y,pageW-marginR,y); y+=6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(...darkGrey);
+    const storyLines = doc.splitTextToSize(card.story||'',contentW);
+    doc.text(storyLines,marginL,y); y+=storyLines.length*5.5+6;
+    const qLines = doc.splitTextToSize(card.closing_question||'',contentW-12);
+    const qBoxH = qLines.length*6+10;
+    doc.setFillColor(...blueLight); doc.setLineWidth(0);
+    doc.roundedRect(marginL,y,contentW,qBoxH,2,2,'F');
+    doc.setFillColor(...blueBorder); doc.rect(marginL,y,3,qBoxH,'F');
+    doc.setFont('helvetica','bolditalic'); doc.setFontSize(11); doc.setTextColor(24,95,165);
+    doc.text(qLines,marginL+8,y+7); y+=qBoxH+6;
+    const fqLines=[t('fq1'),t('fq2')];
+    const fqBoxH=fqLines.length*7+10;
+    doc.setFillColor(...tealLight); doc.roundedRect(marginL,y,contentW,fqBoxH,2,2,'F');
+    doc.setFillColor(...teal); doc.rect(marginL,y,3,fqBoxH,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...teal);
+    fqLines.forEach((q,i)=>doc.text(q,marginL+8,y+8+i*7)); y+=fqBoxH+8;
+    const remainH=pageH-y-18, imgH=Math.max(remainH,60);
+    let embedded=false;
+    if (imageDataUrls[idx]) {
+      try {
+        doc.addImage(imageDataUrls[idx],'JPEG',marginL,y,contentW,imgH);
+        embedded=true;
+      } catch(e){}
+    }
+    if (!embedded) {
+      doc.setDrawColor(...tealBorder); doc.setLineWidth(0.5); doc.setFillColor(248,248,246);
+      doc.roundedRect(marginL,y,contentW,imgH,3,3,'FD');
+      doc.setDrawColor(180,180,180); doc.setLineWidth(0.3);
+      doc.roundedRect(marginL+3,y+3,contentW-6,imgH-6,2,2,'D');
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...midGrey);
+      doc.text(t('pdfImgText'),pageW/2,y+imgH/2-4,{align:'center'});
+      doc.setFontSize(8); doc.text(t('pdfImgSub'),pageW/2,y+imgH/2+4,{align:'center'});
+    }
+    if (card.image_prompt) {
+      doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(160,160,160);
+      const ps=card.image_prompt.length>120?card.image_prompt.substring(0,120)+'…':card.image_prompt;
+      doc.text('Prompt: '+ps,marginL,pageH-10,{maxWidth:contentW});
+    }
+    doc.setDrawColor(...teal); doc.setLineWidth(0.3);
+    doc.line(marginL,pageH-14,pageW-marginR,pageH-14);
+    doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...midGrey);
+    doc.text(t('pdfFooter'),marginL,pageH-10);
+    doc.text(`${idx+1} / ${cards.length}`,pageW-marginR,pageH-10,{align:'right'});
+  });
+  doc.save(((cards[0].title||'ethos_studio').toLowerCase().replace(/[^a-z0-9]+/g,'_').substring(0,40))+'.pdf');
+}
+function renderExisting() {
+  document.getElementById('existing').innerHTML = CASES[lang].map((c,i)=>`
+    <div class="ex-card" id="ex-${i}">
+      <div class="ex-header" onclick="toggleEx(${i})">
+        <span class="ex-title">${c.title}</span><span class="ex-arrow">▾</span>
+      </div>
+      <div class="ex-body">
+        <p class="ex-text">${c.text}</p>
+        <div class="ex-q">${c.question}</div>
+        <div class="tags">${c.values.map(v=>`<span class="tag">${v}</span>`).join('')}</div>
+        <div style="margin-top:0.75rem;font-size:13px;font-weight:600;color:var(--teal)">${t('fq1')} &nbsp;·&nbsp; ${t('fq2')}</div>
+      </div>
+    </div>`).join('');
+}
+function toggleEx(i) {
+  const card=document.getElementById('ex-'+i);
+  const isOpen=card.classList.contains('open');
+  document.querySelectorAll('.ex-card').forEach(c=>c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+function initFromStartPage() {
+  try {
+    const savedLang = sessionStorage.getItem('ethos_lang');
+    if (savedLang === 'en' || savedLang === 'nl') lang = savedLang;
+    const savedCtx = sessionStorage.getItem('ethos_ctx');
+    if (savedCtx) setCtx(savedCtx);
+    const topic = sessionStorage.getItem('ethos_topic');
+    if (topic) document.getElementById('custom-topic').value = topic;
+  } catch (e) {}
+  applyTranslations();
+  if (new URLSearchParams(window.location.search).get('auto') === '1') {
+    sessionStorage.removeItem('ethos_topic');
+    history.replaceState({}, '', 'studio.html');
+    if (apiKey && document.getElementById('custom-topic').value.trim()) generate();
+  }
+}
+initFromStartPage();
+</script>
+</body>
+</html>
