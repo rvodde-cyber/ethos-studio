@@ -117,6 +117,24 @@
     .img-prompt-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 6px; }
     .img-prompt-box { font-size: 12px; color: var(--text-muted); line-height: 1.6; padding: 10px 12px; background: #f4f3f0; border-radius: var(--radius-sm); border: 1px solid var(--border); }
 
+    .firefly-panel { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: var(--radius-sm); padding: 1.25rem; margin-bottom: 1rem; color: white; }
+    .firefly-panel h3 { font-size: 14px; font-weight: 600; margin-bottom: 0.35rem; }
+    .firefly-panel .firefly-intro { font-size: 12px; opacity: 0.85; line-height: 1.55; margin-bottom: 0.75rem; }
+    .firefly-prompt-text { font-size: 12px; line-height: 1.6; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 10px 12px; margin-bottom: 0.75rem; word-break: break-word; }
+    .firefly-btns { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .firefly-btn { padding: 7px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: white; font-size: 12px; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+    .firefly-btn:hover { background: rgba(255,255,255,0.2); }
+    .firefly-btn.primary { background: #ff477e; border-color: #ff477e; font-weight: 600; }
+    .upload-label { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 20px; border: 1px dashed rgba(255,255,255,0.4); font-size: 12px; cursor: pointer; }
+    .upload-label input { display: none; }
+    .card-values { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+    .card-value { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: var(--teal-bg); color: var(--teal); border: 1px solid var(--teal-border); font-weight: 500; }
+    .facilitator-tip { background: var(--amber-bg); border-left: 3px solid #EF9F27; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 0.75rem 1rem; margin-bottom: 1rem; font-size: 13px; line-height: 1.6; color: var(--amber); }
+    .facilitator-tip strong { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+    .img-upload-hint { font-size: 12px; text-align: center; padding: 0 1rem; line-height: 1.5; }
+
+    #print-area { display: none; }
+
     .action-row { display: flex; gap: 8px; padding: 0 1.5rem 1.5rem; flex-wrap: wrap; }
     .act-btn { flex: 1; min-width: 100px; padding: 9px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: transparent; font-family: 'Source Sans 3', sans-serif; font-size: 13px; cursor: pointer; color: var(--text); transition: all 0.15s; }
     .act-btn:hover { background: #f4f3f0; }
@@ -161,6 +179,14 @@
     .footer-link { font-size: 12px; color: rgba(255,255,255,0.6); text-decoration: none; display: flex; align-items: center; gap: 5px; }
     .footer-link:hover { color: white; }
     .footer-copy { font-size: 11px; opacity: 0.4; width: 100%; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
+
+    @media print {
+      header, .api-banner, .container > .panel, .loading, #existing, .app-footer, .action-row, .firefly-panel, .img-actions { display: none !important; }
+      body { background: white; }
+      .result { display: block !important; border: none; box-shadow: none; }
+      .result-body { padding: 0; }
+      .img-area { min-height: 200px; page-break-inside: avoid; }
+    }
   </style>
 </head>
 <body>
@@ -251,30 +277,44 @@
         <span class="ctx-tag" id="ctx-tag"></span>
       </div>
       <div class="result-body">
+        <div class="firefly-panel" id="firefly-panel" style="display:none">
+          <h3 data-i18n="fireflyTitle">🎨 Afbeelding met Adobe Firefly</h3>
+          <p class="firefly-intro" data-i18n="fireflyIntro">Kopieer de prompt, genereer in Firefly, upload de afbeelding — die komt mee in je PDF.</p>
+          <div class="firefly-prompt-text" id="firefly-prompt-text"></div>
+          <div class="firefly-btns">
+            <button type="button" class="firefly-btn primary" onclick="copyFireflyPrompt(this)" data-i18n="copyFireflyPrompt">Kopieer Firefly-prompt</button>
+            <a class="firefly-btn" id="firefly-link" href="https://firefly.adobe.com/" target="_blank" rel="noopener" data-i18n="openFirefly">Open Firefly ↗</a>
+            <label class="upload-label">
+              <input type="file" id="img-upload" accept="image/*" onchange="handleImageUpload(event)"/>
+              <span data-i18n="uploadImage">📷 Upload afbeelding</span>
+            </label>
+          </div>
+        </div>
         <div class="img-area" id="img-area">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>
-          <span data-i18n="imgPlaceholder">Afbeelding verschijnt automatisch na generatie...</span>
+          <span class="img-upload-hint" data-i18n="imgPlaceholder">Upload een Firefly-afbeelding of klik op gratis preview.</span>
         </div>
         <div class="img-actions" id="img-actions" style="display:none">
-          <button class="img-refresh-btn" onclick="regenerateImage()" data-i18n="imgRefresh">↻ Andere afbeelding</button>
-          <span style="font-size:11px;color:var(--text-muted);align-self:center" data-i18n="imgCredit">via Pollinations.ai</span>
+          <button type="button" class="img-refresh-btn" onclick="loadPreviewImage()" data-i18n="imgPreview">↻ Gratis preview</button>
+          <button type="button" class="img-refresh-btn" onclick="clearUploadedImage()" data-i18n="imgClear">✕ Wis afbeelding</button>
         </div>
         <div class="result-title" id="r-title"></div>
+        <div class="card-values" id="r-values" style="display:none"></div>
         <div class="result-story" id="r-story"></div>
         <div class="result-question" id="r-question"></div>
+        <div class="facilitator-tip" id="r-tip" style="display:none">
+          <strong data-i18n="tipLabel">Tip voor begeleider</strong>
+          <span id="r-tip-text"></span>
+        </div>
         <div class="fixed-questions">
           <div class="fixed-q" data-i18n="fq1">Wat zou jij doen en waarom?</div>
           <div class="fixed-q" data-i18n="fq2">Welke waarden zijn hier in het spel?</div>
         </div>
-        <div class="img-prompt-wrap" id="img-prompt-wrap" style="display:none">
-          <div class="img-prompt-label" data-i18n="promptLabel">Afbeeldingsprompt</div>
-          <div class="img-prompt-box" id="img-prompt-box"></div>
-        </div>
       </div>
       <div class="action-row">
         <button class="act-btn" onclick="copyCard(this)" data-i18n="copy">Kopiëren</button>
-        <button class="act-btn" onclick="copyFireflyPrompt(this)" data-i18n="copyFirefly">🎨 Firefly</button>
         <button class="act-btn" onclick="exportPDF()" data-i18n="exportPdf">📄 PDF</button>
+        <button class="act-btn" onclick="printCard()" data-i18n="printBtn">🖨️ Print</button>
         <button class="act-btn" onclick="generate()" data-i18n="regenerate">Opnieuw ↺</button>
       </div>
     </div>
@@ -340,11 +380,17 @@ const T = {
     batchDone: (ok,n) => `✓ ${ok} van ${n} kaarten gegenereerd.`,
     batchGenerated: '✓ Gegenereerd',
     resultLabel: 'Gesprekskaart',
-    imgPlaceholder: 'Afbeelding verschijnt automatisch na generatie...',
-    imgRefresh: '↻ Andere afbeelding', imgCredit: 'via Pollinations.ai (gratis)',
-    promptLabel: 'Afbeeldingsprompt (Pollinations / Firefly / DALL·E)',
+    fireflyTitle: '🎨 Afbeelding met Adobe Firefly',
+    fireflyIntro: 'Kopieer de prompt, genereer in Firefly, upload de afbeelding — die komt mee in je PDF.',
+    copyFireflyPrompt: 'Kopieer Firefly-prompt',
+    openFirefly: 'Open Firefly ↗',
+    uploadImage: '📷 Upload afbeelding',
+    imgPlaceholder: 'Upload een Firefly-afbeelding of klik op gratis preview.',
+    imgPreview: '↻ Gratis preview',
+    imgClear: '✕ Wis afbeelding',
+    tipLabel: 'Tip voor begeleider',
     fq1: 'Wat zou jij doen en waarom?', fq2: 'Welke waarden zijn hier in het spel?',
-    copy: 'Kopiëren', copyFirefly: '🎨 Firefly', exportPdf: '📄 PDF', regenerate: 'Opnieuw ↺',
+    copy: 'Kopiëren', exportPdf: '📄 PDF', printBtn: '🖨️ Print', regenerate: 'Opnieuw ↺',
     existingLabel: 'Voorbeeldcasussen (ter inspiratie)',
     showExamples: 'Of kies een voorbeeldcasus ▾',
     hideExamples: 'Voorbeelden verbergen ▴',
@@ -378,11 +424,17 @@ const T = {
     batchDone: (ok,n) => `✓ ${ok} of ${n} cards generated.`,
     batchGenerated: '✓ Generated',
     resultLabel: 'Conversation card',
-    imgPlaceholder: 'Image appears automatically after generation...',
-    imgRefresh: '↻ Different image', imgCredit: 'via Pollinations.ai (free)',
-    promptLabel: 'Image prompt (Pollinations / Firefly / DALL·E)',
+    fireflyTitle: '🎨 Image with Adobe Firefly',
+    fireflyIntro: 'Copy the prompt, generate in Firefly, upload the image — it will be included in your PDF.',
+    copyFireflyPrompt: 'Copy Firefly prompt',
+    openFirefly: 'Open Firefly ↗',
+    uploadImage: '📷 Upload image',
+    imgPlaceholder: 'Upload a Firefly image or click free preview.',
+    imgPreview: '↻ Free preview',
+    imgClear: '✕ Clear image',
+    tipLabel: 'Facilitator tip',
     fq1: 'What would you do and why?', fq2: 'What values are at stake here?',
-    copy: 'Copy', copyFirefly: '🎨 Firefly', exportPdf: '📄 PDF', regenerate: 'Regenerate ↺',
+    copy: 'Copy', exportPdf: '📄 PDF', printBtn: '🖨️ Print', regenerate: 'Regenerate ↺',
     existingLabel: 'Example cases (for inspiration)',
     showExamples: 'Or pick an example case ▾',
     hideExamples: 'Hide examples ▴',
@@ -447,7 +499,7 @@ const CASES = {
 
 // ══ STATE ══
 let lang = 'nl', apiKey = '', ctx = 'hospital', selectedCase = -1, lastCard = null, batchCards = [];
-let currentImagePrompt = '', examplesOpen = false;
+let currentImagePrompt = '', uploadedImageDataUrl = '', examplesOpen = false;
 
 function t(key) { return T[lang][key] || key; }
 
@@ -519,7 +571,7 @@ function pick(i, btn) {
 }
 function buildPrompt(source) {
   return lang==='nl'
-    ? `Je bent expert in het schrijven van gesprekskaarten voor moreel beraad.
+    ? `Je bent expert in het schrijven van gesprekskaarten voor moreel beraad (Stamkaart v2.0).
 
 Schrijf een gesprekskaart op basis van onderstaande casus. Regels:
 - Max 150 woorden (verhaal, exclusief titel en afsluitvraag)
@@ -528,13 +580,15 @@ Schrijf een gesprekskaart op basis van onderstaande casus. Regels:
 - Sluit af met PRECIES één krachtige open vraag
 - Schrijftaal: Nederlands
 - Setting: ${CTX_DESC.nl[ctx]}
+- Noem 2–4 relevante waarden (één woord of korte term per waarde)
+- Geef één korte begeleiderstip (max 25 woorden) voor degene die het gesprek faciliteert
 
 Geef UITSLUITEND geldig JSON, geen markdown:
-{"title":"max 8 woorden","story":"max 150 woorden","closing_question":"één open vraag","image_prompt":"English cinematic photo prompt, no text, ${CTX_IMG[ctx]}, focus on emotion"}
+{"title":"max 8 woorden","story":"max 150 woorden","closing_question":"één open vraag","values":["waarde1","waarde2"],"facilitator_tip":"korte tip","image_prompt":"English cinematic photo prompt, no text, ${CTX_IMG[ctx]}, focus on emotion"}
 
 CASUS:
 ${source}`
-    : `You are an expert in writing conversation cards for moral deliberation.
+    : `You are an expert in writing conversation cards for moral deliberation (conversation card v2.0).
 
 Write a conversation card based on the case below. Rules:
 - Max 150 words (story only)
@@ -543,9 +597,11 @@ Write a conversation card based on the case below. Rules:
 - End with EXACTLY one powerful open question
 - Language: English
 - Setting: ${CTX_DESC.en[ctx]}
+- Name 2–4 relevant values (one word or short term each)
+- Give one short facilitator tip (max 25 words) for whoever leads the conversation
 
 Respond ONLY with valid JSON, no markdown:
-{"title":"max 8 words","story":"max 150 words","closing_question":"one open question","image_prompt":"English cinematic photo prompt, no text, ${CTX_IMG[ctx]}, focus on emotion"}
+{"title":"max 8 words","story":"max 150 words","closing_question":"one open question","values":["value1","value2"],"facilitator_tip":"short tip","image_prompt":"English cinematic photo prompt, no text, ${CTX_IMG[ctx]}, focus on emotion"}
 
 CASE:
 ${source}`;
@@ -580,6 +636,71 @@ async function callAPI(prompt) {
 function buildFireflyPrompt(imagePrompt) {
   if (!imagePrompt) return '';
   return `${imagePrompt}, professional editorial photography, cinematic natural lighting, shallow depth of field, diverse authentic people, photorealistic, no text, no watermark, no logo, no letters`;
+}
+function showImagePlaceholder() {
+  const area = document.getElementById('img-area');
+  area.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:32px;height:32px;opacity:0.4"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg><span class="img-upload-hint">${t('imgPlaceholder')}</span>`;
+  area.style.border = '1px dashed var(--border)';
+  document.getElementById('img-actions').style.display = 'flex';
+}
+function displayImageFromDataUrl(dataUrl) {
+  const area = document.getElementById('img-area');
+  area.innerHTML = '';
+  area.style.border = 'none';
+  const img = document.createElement('img');
+  img.src = dataUrl;
+  img.style.cssText = 'width:100%;max-height:340px;object-fit:cover;border-radius:var(--radius-sm);display:block;';
+  area.appendChild(img);
+  document.getElementById('img-actions').style.display = 'flex';
+}
+function handleImageUpload(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    uploadedImageDataUrl = reader.result;
+    displayImageFromDataUrl(uploadedImageDataUrl);
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+function clearUploadedImage() {
+  uploadedImageDataUrl = '';
+  showImagePlaceholder();
+}
+function loadPreviewImage() {
+  if (!currentImagePrompt) return;
+  const area = document.getElementById('img-area');
+  area.innerHTML = '<div class="img-skeleton"></div>';
+  area.style.border = 'none';
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    area.innerHTML = '';
+    area.appendChild(img);
+    document.getElementById('img-actions').style.display = 'flex';
+    img.style.cssText = 'width:100%;max-height:340px;object-fit:cover;border-radius:var(--radius-sm);display:block;';
+  };
+  img.onerror = () => showImagePlaceholder();
+  img.src = buildPollinationsUrl(currentImagePrompt);
+}
+function getImageDataUrlForExport() {
+  if (uploadedImageDataUrl) return Promise.resolve(uploadedImageDataUrl);
+  const imgEl = document.querySelector('#img-area img');
+  if (imgEl?.complete && imgEl.naturalWidth > 0) {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = imgEl.naturalWidth;
+      canvas.height = imgEl.naturalHeight;
+      canvas.getContext('2d').drawImage(imgEl, 0, 0);
+      return Promise.resolve(canvas.toDataURL('image/jpeg', 0.85));
+    } catch (e) {}
+  }
+  return Promise.resolve(null);
+}
+function printCard() {
+  if (!lastCard) { alert(t('alertNoCard')); return; }
+  window.print();
 }
 async function generate() {
   if (!apiKey) { alert(t('alertKey')); return; }
@@ -652,46 +773,43 @@ async function exportBatchPDF() {
 function buildPollinationsUrl(prompt) {
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt+', no text, no watermark, no logo')}?width=800&height=500&nologo=true&seed=${Math.floor(Math.random()*99999)}`;
 }
-function loadImage(prompt) {
-  currentImagePrompt = prompt;
-  const area = document.getElementById('img-area');
-  const actions = document.getElementById('img-actions');
-  area.innerHTML = '<div class="img-skeleton"></div>';
-  area.style.border = 'none';
-  actions.style.display = 'none';
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.onload = () => {
-    area.innerHTML = '';
-    area.appendChild(img);
-    actions.style.display = 'flex';
-    applyTranslations();
-  };
-  img.onerror = () => {
-    area.innerHTML = `<span style="font-size:12px;color:var(--text-muted)">${lang==='nl'?'Afbeelding kon niet worden geladen':'Image could not be loaded'}</span>`;
-    area.style.border = '1px dashed var(--border)';
-    actions.style.display = 'flex';
-  };
-  img.src = buildPollinationsUrl(prompt);
-  img.style.cssText = 'width:100%;max-height:340px;object-fit:cover;border-radius:var(--radius-sm);display:block;';
-}
-function regenerateImage() { if (currentImagePrompt) loadImage(currentImagePrompt); }
+function loadImage(prompt) { currentImagePrompt = prompt; loadPreviewImage(); }
+function regenerateImage() { loadPreviewImage(); }
 function showCard(p) {
   document.getElementById('loading').classList.remove('show');
+  uploadedImageDataUrl = '';
   document.getElementById('r-title').textContent = p.title||'';
   document.getElementById('r-story').textContent = p.story||'';
   document.getElementById('r-question').textContent = p.closing_question||'';
   document.getElementById('ctx-tag').textContent = t('ctx_'+ctx);
-  const area = document.getElementById('img-area');
-  area.innerHTML = '<div class="img-skeleton"></div>';
-  area.style.border = 'none';
-  document.getElementById('img-actions').style.display = 'none';
-  if (p.image_prompt) {
-    document.getElementById('img-prompt-box').textContent = p.image_prompt;
-    document.getElementById('img-prompt-wrap').style.display = 'block';
-    loadImage(p.image_prompt);
+
+  const valuesEl = document.getElementById('r-values');
+  if (Array.isArray(p.values) && p.values.length) {
+    valuesEl.innerHTML = p.values.map(v => `<span class="card-value">${v}</span>`).join('');
+    valuesEl.style.display = 'flex';
+  } else {
+    valuesEl.style.display = 'none';
   }
+
+  const tipEl = document.getElementById('r-tip');
+  if (p.facilitator_tip) {
+    document.getElementById('r-tip-text').textContent = p.facilitator_tip;
+    tipEl.style.display = 'block';
+  } else {
+    tipEl.style.display = 'none';
+  }
+
+  if (p.image_prompt) {
+    currentImagePrompt = p.image_prompt;
+    document.getElementById('firefly-prompt-text').textContent = buildFireflyPrompt(p.image_prompt);
+    document.getElementById('firefly-panel').style.display = 'block';
+  } else {
+    document.getElementById('firefly-panel').style.display = 'none';
+  }
+
+  showImagePlaceholder();
   document.getElementById('result').classList.add('show');
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function flashCopied(btn) {
   const orig = btn.textContent;
@@ -700,8 +818,11 @@ function flashCopied(btn) {
 }
 function copyCard(btn) {
   if (!lastCard) return;
-  const text = [lastCard.title,'',lastCard.story,'',lastCard.closing_question,'',t('fq1'),t('fq2')].join('\n');
-  navigator.clipboard.writeText(text).then(() => flashCopied(btn));
+  const parts = [lastCard.title, '', lastCard.story, '', lastCard.closing_question];
+  if (Array.isArray(lastCard.values) && lastCard.values.length) parts.push('', lastCard.values.join(' · '));
+  parts.push('', t('fq1'), t('fq2'));
+  if (lastCard.facilitator_tip) parts.push('', `${t('tipLabel')}: ${lastCard.facilitator_tip}`);
+  navigator.clipboard.writeText(parts.join('\n')).then(() => flashCopied(btn));
 }
 function copyFireflyPrompt(btn) {
   if (!lastCard?.image_prompt) return;
@@ -710,16 +831,7 @@ function copyFireflyPrompt(btn) {
 async function exportPDF() {
   if (!lastCard) { alert(t('alertNoCard')); return; }
   const card = { ...lastCard };
-  const imgEl = document.querySelector('#img-area img');
-  if (imgEl?.complete && imgEl.naturalWidth > 0) {
-    try {
-      const canvas = document.createElement('canvas');
-      canvas.width = imgEl.naturalWidth;
-      canvas.height = imgEl.naturalHeight;
-      canvas.getContext('2d').drawImage(imgEl, 0, 0);
-      card._imageDataUrl = canvas.toDataURL('image/jpeg', 0.85);
-    } catch (e) {}
-  }
+  card._imageDataUrl = await getImageDataUrlForExport();
   await renderCardToPDF([card]);
 }
 async function exportAllPDF() {
@@ -782,7 +894,20 @@ async function renderCardToPDF(cards) {
     doc.setFillColor(...tealLight); doc.roundedRect(marginL,y,contentW,fqBoxH,2,2,'F');
     doc.setFillColor(...teal); doc.rect(marginL,y,3,fqBoxH,'F');
     doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...teal);
-    fqLines.forEach((q,i)=>doc.text(q,marginL+8,y+8+i*7)); y+=fqBoxH+8;
+    fqLines.forEach((q,i)=>doc.text(q,marginL+8,y+8+i*7)); y+=fqBoxH+6;
+
+    if (Array.isArray(card.values) && card.values.length) {
+      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...midGrey);
+      doc.text((lang==='nl'?'Waarden: ':'Values: ')+card.values.join(' · '), marginL, y);
+      y += 8;
+    }
+    if (card.facilitator_tip) {
+      doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(...midGrey);
+      const tipLines = doc.splitTextToSize((lang==='nl'?'Tip begeleider: ':'Facilitator tip: ')+card.facilitator_tip, contentW);
+      doc.text(tipLines, marginL, y);
+      y += tipLines.length * 4.5 + 4;
+    }
+
     const remainH=pageH-y-18, imgH=Math.max(remainH,60);
     let embedded=false;
     if (imageDataUrls[idx]) {

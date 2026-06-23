@@ -20,14 +20,13 @@ Open `ethos-studio` als workspace in Cursor.
 
 ## Laatste wijziging
 
-Opsplitsing startpagina + studio. Toegangscode en dubbele landing verwijderd uit studio. Startpagina stuurt topic/context door via sessionStorage.
+Fase A+B: Firefly-workflow (prominente prompt, upload, Open Firefly), print-knop, prompt v4 (waarden + begeleiderstip), PDF lokaal met geüploade afbeelding. Zie `ETHOS_STUDIO_BESCHRIJVING.md` voor Claude-context.
 
 ## Volgende sessie
 
 1. Live site controleren na deploy (hard refresh)
-2. Prompt v4 + transfer-markdown toevoegen → `buildPrompt()` uitbreiden (waarden, begeleiderstip)
-3. Voorbeeldcasussen per sector
-4. Handleiding bijwerken (verwijs naar index.html / studio.html)
+2. Voorbeeldcasussen per sector
+3. Handleiding bijwerken (Firefly-workflow, index/studio split)
 
 ## Context voor Cursor
 
