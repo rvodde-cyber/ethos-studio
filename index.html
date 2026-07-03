@@ -58,6 +58,19 @@
     .ctx-btn:hover { border-color: rgba(0,0,0,0.2); }
     .ctx-btn.active { background: var(--teal-bg); border-color: var(--teal-border); color: #04342C; font-weight: 600; }
 
+    .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 1.25rem; }
+    @media (max-width: 520px) { .level-grid { grid-template-columns: 1fr; } }
+    .level-btn {
+      padding: 10px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+      background: #f8f8f6; font-family: inherit; font-size: 12px; cursor: pointer;
+      color: var(--muted); text-align: left; transition: all 0.15s; line-height: 1.35;
+    }
+    .level-btn strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+    .level-btn span { font-size: 11px; }
+    .level-btn:hover { border-color: rgba(0,0,0,0.2); }
+    .level-btn.active { background: var(--blue-bg); border-color: #85B7EB; color: #0C447C; }
+    .level-btn.active strong { color: #0C447C; }
+
     textarea, input[type="password"] {
       width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
       padding: 11px 13px; font-family: inherit; font-size: 14px; color: var(--text);
@@ -80,7 +93,6 @@
       color: white; border: none; cursor: pointer; font-family: inherit;
     }
 
-    .submit-btn {
     .api-hint a { color: var(--amber); }
 
     .key-guide {
@@ -98,6 +110,7 @@
     .api-row { margin-bottom: 0.75rem; }
     .remember-row { display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; font-size: 12px; color: var(--muted); }
     .remember-row input { width: auto; accent-color: var(--teal); }
+    .submit-btn {
       width: 100%; padding: 14px; background: var(--teal); color: white; border: none;
       border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; font-weight: 600;
       cursor: pointer; transition: background 0.15s;
@@ -160,6 +173,25 @@
         <button type="button" class="ctx-btn" data-ctx="government" onclick="setCtx('government', this)">🏛️ <span data-i18n="ctx_government">Overheid</span></button>
         <button type="button" class="ctx-btn" data-ctx="general" onclick="setCtx('general', this)">🌍 <span data-i18n="ctx_general">Algemeen</span></button>
       </div>
+    </div>
+
+    <div class="field">
+      <span class="field-label" data-i18n="levelLabel">Complexiteit van het dilemma</span>
+      <div class="level-grid">
+        <button type="button" class="level-btn" data-level="micro" onclick="setLevel('micro', this)">
+          <strong data-i18n="level_micro">Micro</strong>
+          <span data-i18n="level_micro_hint">Individuele keuze op de werkvloer</span>
+        </button>
+        <button type="button" class="level-btn active" data-level="meso" onclick="setLevel('meso', this)">
+          <strong data-i18n="level_meso">Meso</strong>
+          <span data-i18n="level_meso_hint">Organisatie en belangen</span>
+        </button>
+        <button type="button" class="level-btn" data-level="macro" onclick="setLevel('macro', this)">
+          <strong data-i18n="level_macro">Macro</strong>
+          <span data-i18n="level_macro_hint">Maatschappelijk en systemisch</span>
+        </button>
+      </div>
+      <p class="field-hint" data-i18n="levelHint">Bepaalt de scherpte van het dilemma en de begeleiderstip op de kaart.</p>
     </div>
 
     <div class="field">
@@ -228,6 +260,11 @@ const T = {
     ctxLabel: 'Sector / context',
     ctx_hospital: 'Ziekenhuis', ctx_care: 'Zorg', ctx_education: 'Onderwijs', ctx_defence: 'Defensie',
     ctx_business: 'Bedrijf', ctx_welfare: 'Welzijn', ctx_government: 'Overheid', ctx_general: 'Algemeen',
+    levelLabel: 'Complexiteit van het dilemma',
+    level_micro: 'Micro', level_micro_hint: 'Individuele keuze op de werkvloer',
+    level_meso: 'Meso', level_meso_hint: 'Organisatie en belangen',
+    level_macro: 'Macro', level_macro_hint: 'Maatschappelijk en systemisch',
+    levelHint: 'Bepaalt de scherpte van het dilemma en de begeleiderstip op de kaart.',
     topicLabel: 'De situatie (2–3 zinnen)',
     topicPlaceholder: 'Omschrijf kort wie betrokken is, wat er speelt en waar de spanning zit…',
     topicHint: 'Bijv.: een verpleegkundige ziet dat een collega een fout maakt, maar wil de sfeer niet verstoren.',
@@ -265,6 +302,11 @@ const T = {
     ctxLabel: 'Sector / context',
     ctx_hospital: 'Hospital', ctx_care: 'Healthcare', ctx_education: 'Education', ctx_defence: 'Defence',
     ctx_business: 'Business', ctx_welfare: 'Social work', ctx_government: 'Government', ctx_general: 'General',
+    levelLabel: 'Complexity of the dilemma',
+    level_micro: 'Micro', level_micro_hint: 'Individual choice on the workfloor',
+    level_meso: 'Meso', level_meso_hint: 'Organisation and interests',
+    level_macro: 'Macro', level_macro_hint: 'Societal and systemic',
+    levelHint: 'Shapes the sharpness of the dilemma and the facilitator tip on the card.',
     topicLabel: 'The situation (2–3 sentences)',
     topicPlaceholder: 'Briefly describe who is involved, what is happening and where the tension lies…',
     topicHint: 'E.g.: a nurse sees a colleague make a mistake but does not want to disrupt the team atmosphere.',
@@ -298,6 +340,7 @@ const T = {
 
 let lang = 'nl';
 let ctx = 'hospital';
+let level = 'meso';
 
 function t(k) { return T[lang][k] || k; }
 
@@ -327,6 +370,12 @@ function setLang(l) {
 function setCtx(c, btn) {
   ctx = c;
   document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setLevel(l, btn) {
+  level = l;
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
 
@@ -392,6 +441,7 @@ function startGenerate(e) {
     sessionStorage.setItem('ethos_api_key', key);
     sessionStorage.setItem('ethos_lang', lang);
     sessionStorage.setItem('ethos_ctx', ctx);
+    sessionStorage.setItem('ethos_level', level);
     sessionStorage.setItem('ethos_topic', source);
   } catch (err) {}
 
