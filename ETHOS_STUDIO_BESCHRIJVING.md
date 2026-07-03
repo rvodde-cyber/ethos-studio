@@ -55,7 +55,65 @@ Output blijft **lokaal**: PDF-download en print gebeuren in de browser; er is ge
 
 **Sectoren:** Ziekenhuis · Zorg · Onderwijs · Defensie · Bedrijf · Welzijn · Overheid · Algemeen.
 
+**Complexiteitsniveaus:** Micro · Meso · Macro (zie hieronder).
+
 **Talen:** NL/EN (interface én gegenereerde kaarten).
+
+---
+
+## Complexiteitsniveaus van dilemma's (Micro · Meso · Macro)
+
+Om morele dilemma's gestructureerd in te delen naar complexiteit, kijkt Ethos Studio naar de **aard van het conflict** en de **mate van onzekerheid**. Dit onderscheid helpt docenten en begeleiders de juiste casus te kiezen en het gesprek op het passende niveau te voeren.
+
+### 1. Micro-niveau (eenvoudige of operationele dilemma's)
+
+Directe, individuele keuzes op de werkvloer of in het dagelijks leven.
+
+| Kenmerk | Toelichting |
+|---|---|
+| Conflict | Tussen twee duidelijk aanwijsbare waarden of normen (bijv. collegialiteit versus eerlijkheid) |
+| Complexiteit | Laag — betrokkenen en directe gevolgen zijn redelijk te overzien |
+| Voorbeeld | Een collega maakt een kleine fout; meld je dit aan de leidinggevende of bespreek je dit vertrouwelijk onder vier ogen? |
+
+**In Ethos Studio:** standaardniveau. Geschikt voor korte gesprekskaarten over persoonlijke morele keuzes in de directe praktijk.
+
+### 2. Meso-niveau (organisatorische of tactische dilemma's)
+
+Het conflict overstijgt het individu en raakt richtlijnen, cultuur of belangen van een gehele organisatie of groep.
+
+| Kenmerk | Toelichting |
+|---|---|
+| Conflict | Frictie tussen persoonlijke morele waarden en regels, winstdoelstellingen of protocollen |
+| Complexiteit | Gemiddeld — meerdere stakeholders (klanten, management, medewerkers) met tegenstrijdige belangen |
+| Voorbeeld | Een zorginstelling moet bezuinigen, waardoor er minder tijd per patiënt overblijft. Klok houden (organisatiebelang) of langer blijven voor menselijke aandacht (professionele waarde)? |
+
+**In Ethos Studio:** de AI schrijft casussen waarin organisatiedruk, protocollen en teamcultuur zichtbaar zijn. Extra reflectievraag over botsende organisatiebelangen.
+
+### 3. Macro-niveau (systemische of maatschappelijke dilemma's)
+
+De meest complexe vraagstukken over maatschappelijke structuren, wetgeving of mondiale ethiek.
+
+| Kenmerk | Toelichting |
+|---|---|
+| Conflict | Structureel — wetgeving, politieke belangen, cultuur en universele mensenrechten kruisen elkaar |
+| Complexiteit | Hoog — geen eenduidig "goede" uitkomst; lange-termijngevolgen onzeker of onomkeerbaar |
+| Voorbeeld | De inzet en regulering van AI binnen bedrijfsprocessen: economische innovatie versus privacy en autonomie van de burger |
+
+**In Ethos Studio:** casussen met structurele spanning. Extra reflectievraag over onderliggende systemen en wetgeving.
+
+### Waar het kader wordt toegepast
+
+| Plek | Functie |
+|---|---|
+| `index.html` / `studio.html` | Keuze **Complexiteitsniveau** naast sector — wordt opgeslagen als `ethos_level` |
+| `buildPrompt()` in `studio.html` | AI-instructie per niveau: scope, stakeholders, begeleiderstip |
+| Resultaatkaart + PDF | Badge met niveau (Micro / Meso / Macro) naast sector |
+| Reflectievragen | Niveau-specifieke derde vraag bij meso en macro |
+| `ethos_studio_handleiding.html` | Uitleg voor gebruikers over wanneer welk niveau te kiezen |
+
+### Houd de complexiteit vast
+
+In haar proefschrift *Impossible and Inevitable* benadrukt dr. Kim Meijer (Tilburg University) dat organisaties de neiging hebben om complexe meso- en macro-dilemma's te snel te "oplossen" door ze te vangen in platte regels en protocollen. Echte moraliteit vraagt juist om het **durven uithouden** van die complexiteit en ongemakkelijke vragen. Ethos Studio volgt die lijn: de begeleiderstip moedigt aan om het dilemma niet plat te slaan, maar de spanning bewust te benoemen.
 
 ---
 
@@ -85,7 +143,7 @@ Ethos Studio is een **praktische werkvorm** binnen het bredere kader van moreel 
 Project: Ethos Studio (ethos-studio repo)
 Doel: Gesprekskaarten genereren voor moreel beraad
 Start: index.html → studio.html?auto=1
-Prompt: buildPrompt() in studio.html (v4: waarden + facilitator_tip + image_prompt)
+Prompt: buildPrompt() in studio.html (v5: niveau micro/meso/macro + waarden + facilitator_tip + image_prompt)
 Design: Fontys groen (#0F6E56), Playfair Display + Source Sans 3, Apple-stijl witruimte
-Volgende stappen: voorbeeldcasussen per sector, handleiding bijwerken, eventueel eigen domein
+Volgende stappen: voorbeeldcasussen per sector én per niveau, eventueel eigen domein
 ```
