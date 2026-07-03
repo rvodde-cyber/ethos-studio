@@ -58,6 +58,18 @@
     .ctx-btn:hover { border-color: rgba(0,0,0,0.2); }
     .ctx-btn.active { background: var(--teal-bg); border-color: var(--teal-border); color: #04342C; font-weight: 600; }
 
+    .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 0.5rem; }
+    @media (max-width: 520px) { .level-grid { grid-template-columns: 1fr; } }
+    .level-btn {
+      padding: 10px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+      background: #f8f8f6; font-family: inherit; font-size: 12px; cursor: pointer;
+      color: var(--muted); text-align: left; transition: all 0.15s; line-height: 1.35;
+    }
+    .level-btn strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+    .level-btn:hover { border-color: rgba(0,0,0,0.2); }
+    .level-btn.active { background: var(--blue-bg); border-color: #85B7EB; color: #0C447C; }
+    .level-btn.active strong { color: #0C447C; }
+
     textarea, input[type="password"] {
       width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
       padding: 11px 13px; font-family: inherit; font-size: 14px; color: var(--text);
@@ -163,6 +175,25 @@
     </div>
 
     <div class="field">
+      <span class="field-label" data-i18n="levelLabel">Complexiteitsniveau dilemma</span>
+      <div class="level-grid">
+        <button type="button" class="level-btn active" data-level="micro" onclick="setLevel('micro', this)">
+          <strong data-i18n="level_micro">Micro</strong>
+          <span data-i18n="level_micro_desc">Individuele keuze op de werkvloer</span>
+        </button>
+        <button type="button" class="level-btn" data-level="meso" onclick="setLevel('meso', this)">
+          <strong data-i18n="level_meso">Meso</strong>
+          <span data-i18n="level_meso_desc">Organisatie, protocollen, belangen</span>
+        </button>
+        <button type="button" class="level-btn" data-level="macro" onclick="setLevel('macro', this)">
+          <strong data-i18n="level_macro">Macro</strong>
+          <span data-i18n="level_macro_desc">Systemisch, beleid, maatschappelijk</span>
+        </button>
+      </div>
+      <p class="field-hint" data-i18n="levelHint">Kies het niveau waarop het conflict speelt — dit beïnvloedt hoe de gesprekskaart wordt geschreven.</p>
+    </div>
+
+    <div class="field">
       <label class="field-label" for="topic" data-i18n="topicLabel">De situatie (2–3 zinnen)</label>
       <textarea id="topic" name="topic" required data-i18n-placeholder="topicPlaceholder"></textarea>
       <p class="field-hint" data-i18n="topicHint">Bijv.: een verpleegkundige ziet dat een collega een fout maakt, maar wil de sfeer niet verstoren.</p>
@@ -228,6 +259,12 @@ const T = {
     ctxLabel: 'Sector / context',
     ctx_hospital: 'Ziekenhuis', ctx_care: 'Zorg', ctx_education: 'Onderwijs', ctx_defence: 'Defensie',
     ctx_business: 'Bedrijf', ctx_welfare: 'Welzijn', ctx_government: 'Overheid', ctx_general: 'Algemeen',
+    levelLabel: 'Complexiteitsniveau dilemma',
+    level_micro: 'Micro', level_meso: 'Meso', level_macro: 'Macro',
+    level_micro_desc: 'Individuele keuze op de werkvloer',
+    level_meso_desc: 'Organisatie, protocollen, belangen',
+    level_macro_desc: 'Systemisch, beleid, maatschappelijk',
+    levelHint: 'Kies het niveau waarop het conflict speelt — dit beïnvloedt hoe de gesprekskaart wordt geschreven.',
     topicLabel: 'De situatie (2–3 zinnen)',
     topicPlaceholder: 'Omschrijf kort wie betrokken is, wat er speelt en waar de spanning zit…',
     topicHint: 'Bijv.: een verpleegkundige ziet dat een collega een fout maakt, maar wil de sfeer niet verstoren.',
@@ -265,6 +302,12 @@ const T = {
     ctxLabel: 'Sector / context',
     ctx_hospital: 'Hospital', ctx_care: 'Healthcare', ctx_education: 'Education', ctx_defence: 'Defence',
     ctx_business: 'Business', ctx_welfare: 'Social work', ctx_government: 'Government', ctx_general: 'General',
+    levelLabel: 'Dilemma complexity level',
+    level_micro: 'Micro', level_meso: 'Meso', level_macro: 'Macro',
+    level_micro_desc: 'Individual choice at work',
+    level_meso_desc: 'Organisation, protocols, interests',
+    level_macro_desc: 'Systemic, policy, societal',
+    levelHint: 'Choose the level at which the conflict plays out — this shapes how the card is written.',
     topicLabel: 'The situation (2–3 sentences)',
     topicPlaceholder: 'Briefly describe who is involved, what is happening and where the tension lies…',
     topicHint: 'E.g.: a nurse sees a colleague make a mistake but does not want to disrupt the team atmosphere.',
@@ -298,6 +341,7 @@ const T = {
 
 let lang = 'nl';
 let ctx = 'hospital';
+let level = 'micro';
 
 function t(k) { return T[lang][k] || k; }
 
@@ -327,6 +371,12 @@ function setLang(l) {
 function setCtx(c, btn) {
   ctx = c;
   document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setLevel(l, btn) {
+  level = l;
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
 
@@ -392,6 +442,7 @@ function startGenerate(e) {
     sessionStorage.setItem('ethos_api_key', key);
     sessionStorage.setItem('ethos_lang', lang);
     sessionStorage.setItem('ethos_ctx', ctx);
+    sessionStorage.setItem('ethos_level', level);
     sessionStorage.setItem('ethos_topic', source);
   } catch (err) {}
 

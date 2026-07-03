@@ -45,6 +45,11 @@
     .ctx-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; font-size: 13px; }
     .ctx-item strong { color: var(--teal); display: block; margin-bottom: 2px; }
 
+    .level-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 1rem; }
+    @media (max-width: 700px) { .level-grid { grid-template-columns: 1fr; } }
+    .level-item { background: var(--blue-bg); border: 1px solid #85B7EB; border-radius: 8px; padding: 10px 14px; font-size: 13px; }
+    .level-item strong { color: var(--blue); display: block; margin-bottom: 4px; }
+
     .cost-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 13px; }
     .cost-table th { background: var(--teal); color: white; padding: 8px 12px; text-align: left; }
     .cost-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
@@ -99,10 +104,11 @@
       <div class="section-title"><span class="section-num">3</span>Een kaart genereren: stap voor stap</div>
       <ul class="step-list">
         <li><span class="step-num">1</span><div><strong>Kies een sector/context</strong> — selecteer de setting die past bij jouw doelgroep: Ziekenhuis, Zorg, Onderwijs, Defensie, Bedrijf, Welzijn, Overheid of Algemeen.</div></li>
-        <li><span class="step-num">2</span><div><strong>Kies een tab</strong> — "Één kaart" voor een enkele generatie, "Batch" voor meerdere kaarten tegelijk.</div></li>
-        <li><span class="step-num">3</span><div><strong>Omschrijf je casus in eigen woorden</strong> — typ in het tekstveld een situatie of dilemma in twee à drie zinnen. Dat kan heel rauw en schetsmatig: een naam, een rollenspel, een spanningsveld. Ethos Studio maakt er een volledig uitgeschreven, narratief verhaal van conform de kaartstructuur. De vier ingebouwde voorbeelden onderaan de pagina laten zien wat goede input kan zijn — maar die zijn ter inspiratie, niet verplicht.</div></li>
-        <li><span class="step-num">4</span><div><strong>Klik op Genereer</strong> — de app stuurt jouw omschrijving naar Claude en toont binnen enkele seconden een gegenereerde kaart met pakkende titel, verhaal, sluitende vraag en afbeeldingsprompt.</div></li>
-        <li><span class="step-num">5</span><div><strong>Exporteer of kopieer</strong> — gebruik "Exporteer PDF" voor een kant-en-klaar A4-document, of "Kopiëren" om de tekst elders te plakken.</div></li>
+        <li><span class="step-num">2</span><div><strong>Kies het complexiteitsniveau</strong> — Micro (individuele keuze), Meso (organisatie/protocollen) of Macro (systemisch/maatschappelijk). Zie sectie 4 voor uitleg.</div></li>
+        <li><span class="step-num">3</span><div><strong>Kies een tab</strong> — "Één kaart" voor een enkele generatie, "Batch" voor meerdere kaarten tegelijk.</div></li>
+        <li><span class="step-num">4</span><div><strong>Omschrijf je casus in eigen woorden</strong> — typ in het tekstveld een situatie of dilemma in twee à drie zinnen. Dat kan heel rauw en schetsmatig: een naam, een rollenspel, een spanningsveld. Ethos Studio maakt er een volledig uitgeschreven, narratief verhaal van conform de kaartstructuur. De vier ingebouwde voorbeelden onderaan de pagina laten zien wat goede input kan zijn — maar die zijn ter inspiratie, niet verplicht.</div></li>
+        <li><span class="step-num">5</span><div><strong>Klik op Genereer</strong> — de app stuurt jouw omschrijving naar Claude en toont binnen enkele seconden een gegenereerde kaart met pakkende titel, verhaal, sluitende vraag en afbeeldingsprompt.</div></li>
+        <li><span class="step-num">6</span><div><strong>Exporteer of kopieer</strong> — gebruik "Exporteer PDF" voor een kant-en-klaar A4-document, of "Kopiëren" om de tekst elders te plakken.</div></li>
       </ul>
       <div class="tip">💡 Voorbeeldinvoer die goed werkt:<br><br>
         <em>"Verpleegkundige ziet dat collega een medicatiefout maakt maar wil de werksfeer niet verstoren."</em><br><br>
@@ -112,28 +118,50 @@
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="section-num">4</span>Batch: meerdere kaarten tegelijk</div>
+      <div class="section-title"><span class="section-num">4</span>Complexiteitsniveaus: Micro, Meso en Macro</div>
+      <p>Om morele dilemma's gestructureerd in te delen naar complexiteit, kijkt Ethos Studio naar de <strong>aard van het conflict</strong> en de <strong>mate van onzekerheid</strong>. Kies het niveau dat past bij jouw casus — de AI schrijft de kaart daarop en voegt passende reflectievragen toe.</p>
+      <div class="level-grid">
+        <div class="level-item">
+          <strong>Micro — operationeel</strong>
+          Directe, individuele keuzes op de werkvloer. Conflict tussen twee duidelijke waarden (bijv. collegialiteit versus eerlijkheid). Laag complex: betrokkenen en gevolgen zijn overzichtelijk.<br><br>
+          <em>Voorbeeld:</em> een collega maakt een fout — melden of vertrouwelijk bespreken?
+        </div>
+        <div class="level-item">
+          <strong>Meso — organisatorisch</strong>
+          Frictie tussen persoonlijke waarden en regels, protocollen of organisatiebelangen. Meerdere stakeholders met tegenstrijdige belangen.<br><br>
+          <em>Voorbeeld:</em> bezuinigen op zorgtijd — klok houden of langer blijven voor de patiënt?
+        </div>
+        <div class="level-item">
+          <strong>Macro — systemisch</strong>
+          Structurele conflicten waarbij wetgeving, beleid, cultuur en universele waarden elkaar kruisen. Geen eenduidige "goede" uitkomst.<br><br>
+          <em>Voorbeeld:</em> AI in bedrijfsprocessen — innovatie versus privacy en autonomie?
+        </div>
+      </div>
+      <div class="tip" style="margin-top:1rem">💡 Bij meso- en macro-dilemma's voegt Ethos Studio een extra reflectievraag toe. De begeleiderstip moedigt aan om de complexiteit te benoemen in plaats van het dilemma plat te reduceren tot één simpele regel — in lijn met het onderzoek van dr. Kim Meijer (<a href="https://research.tilburguniversity.edu/en/publications/impossible-and-inevitable-reconstructing-the-critique-of-business/" target="_blank" rel="noopener">Impossible and Inevitable</a>).</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">5</span>Batch: meerdere kaarten tegelijk</div>
       <p>Klik op de tab <strong>"Batch (meerdere)"</strong>. Voer meerdere onderwerpen in, één per regel. Maximum 15 kaarten per keer.</p>
       <div class="tip">💡 Voorbeeldinvoer:<br><br>Een verpleegkundige die twijfelt of ze een fout moet melden<br>Een docent die een student betrapt op fraude<br>Een manager die moet bezuinigen op zijn eigen team</div>
       <p style="margin-top:0.75rem">De app genereert de kaarten één voor één en toont een voortgangsbalk. Na afloop kun je alle kaarten in één klik als meerpagina-PDF exporteren.</p>
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="section-num">5</span>De afbeelding</div>
-      <p>Na het genereren van een kaart verschijnt er <strong>automatisch een passende afbeelding</strong> via Pollinations.ai — een gratis beeldgeneratiedienst. Je hoeft niets extra te doen.</p>
-      <p>Bevalt de afbeelding niet? Klik op <strong>↻ Andere afbeelding</strong> onder de foto voor een nieuwe variant op dezelfde prompt.</p>
-      <p>Elke kaart bevat ook een <strong>afbeeldingsprompt</strong> in het Engels. Voor hogere kwaliteit kun je deze kopiëren en plakken in Midjourney, DALL-E of <a href="https://www.bing.com/images/create" target="_blank">bing.com/images/create</a> (gratis).</p>
-      <div class="tip">💡 Bij het exporteren naar PDF wordt de geladen Pollinations-afbeelding automatisch meegenomen in het document.</div>
+      <div class="section-title"><span class="section-num">6</span>De afbeelding</div>
+      <p>Na het genereren verschijnt een <strong>afbeeldingsprompt</strong> in het Engels. Kopieer deze naar <a href="https://firefly.adobe.com/" target="_blank" rel="noopener">Adobe Firefly</a> voor een professionele afbeelding, of gebruik de gratis preview-knop. Upload de afbeelding — die komt mee in je PDF.</p>
+      <p>Alternatief: gebruik de prompt in Midjourney, DALL-E of <a href="https://www.bing.com/images/create" target="_blank">bing.com/images/create</a>.</p>
+      <div class="tip">💡 Bij het exporteren naar PDF wordt de geüploade of preview-afbeelding automatisch meegenomen.</div>
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="section-num">6</span>Taal wisselen</div>
+      <div class="section-title"><span class="section-num">7</span>Taal wisselen</div>
       <p>Gebruik de knoppen <strong>🇳🇱 NL</strong> en <strong>🇬🇧 EN</strong> rechtsboven in de app om te wisselen. De volledige interface én de gegenereerde kaarten komen in de gekozen taal. Je kunt ook de taal per kaart wisselen — genereer een Nederlandse batch en schakel dan naar Engels voor een volgende.</p>
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="section-num">7</span>Delen met collega's</div>
-      <p>Het bestand <code>ethos_studio.html</code> is volledig zelfstandig — je kunt het mailen of op een USB-stick meegeven. Elke collega opent het bestand in hun browser (Chrome, Firefox, Edge) en voert hun eigen API-key in.</p>
+      <div class="section-title"><span class="section-num">8</span>Delen met collega's</div>
+      <p>De app bestaat uit <code>index.html</code> (snel starten) en <code>studio.html</code> (volledige studio). Deel de map of link naar <a href="https://rvodde-cyber.github.io/ethos-studio/" target="_blank" rel="noopener">rvodde-cyber.github.io/ethos-studio</a>. Elke collega opent de site in de browser en voert hun eigen API-key in.</p>
       <div class="note">⚠️ Voor het gebruik is een internetverbinding vereist: de app communiceert met de Anthropic API en laadt lettertypen van Google Fonts.</div>
     </div>
   </div>
@@ -167,10 +195,11 @@
       <div class="section-title"><span class="section-num">3</span>Generating a card: step by step</div>
       <ul class="step-list">
         <li><span class="step-num">1</span><div><strong>Choose a sector/context</strong> — select the setting that matches your audience: Hospital, Healthcare, Education, Defence, Business, Social Work, Government or General.</div></li>
-        <li><span class="step-num">2</span><div><strong>Choose a tab</strong> — "Single card" for one generation, "Batch" for multiple cards at once.</div></li>
-        <li><span class="step-num">3</span><div><strong>Describe your case in your own words</strong> — type a situation or dilemma in two or three sentences. It can be rough and sketchy: a name, a role, a tension. Ethos Studio turns it into a fully written, narrative story that follows the card structure. The four built-in examples at the bottom of the page show what good input looks like — but they are there for inspiration, not as a requirement.</div></li>
-        <li><span class="step-num">4</span><div><strong>Click Generate</strong> — the app sends your description to Claude and displays a generated card within seconds, including a punchy title, story, closing question and image prompt.</div></li>
-        <li><span class="step-num">5</span><div><strong>Export or copy</strong> — use "Export PDF" for a ready-to-use A4 document, or "Copy" to paste the text elsewhere.</div></li>
+        <li><span class="step-num">2</span><div><strong>Choose the complexity level</strong> — Micro (individual choice), Meso (organisation/protocols) or Macro (systemic/societal). See section 4 for details.</div></li>
+        <li><span class="step-num">3</span><div><strong>Choose a tab</strong> — "Single card" for one generation, "Batch" for multiple cards at once.</div></li>
+        <li><span class="step-num">4</span><div><strong>Describe your case in your own words</strong> — type a situation or dilemma in two or three sentences. It can be rough and sketchy: a name, a role, a tension. Ethos Studio turns it into a fully written, narrative story that follows the card structure. The four built-in examples at the bottom of the page show what good input looks like — but they are there for inspiration, not as a requirement.</div></li>
+        <li><span class="step-num">5</span><div><strong>Click Generate</strong> — the app sends your description to Claude and displays a generated card within seconds, including a punchy title, story, closing question and image prompt.</div></li>
+        <li><span class="step-num">6</span><div><strong>Export or copy</strong> — use "Export PDF" for a ready-to-use A4 document, or "Copy" to paste the text elsewhere.</div></li>
       </ul>
       <div class="tip">💡 Input that works well:<br><br>
         <em>"A nurse sees a colleague make a medication error but doesn't want to damage the team atmosphere."</em><br><br>
@@ -180,28 +209,50 @@
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="section-num">4</span>Batch: multiple cards at once</div>
+      <div class="section-title"><span class="section-num">4</span>Complexity levels: Micro, Meso and Macro</div>
+      <p>To structure moral dilemmas by complexity, Ethos Studio looks at the <strong>nature of the conflict</strong> and the <strong>degree of uncertainty</strong>. Choose the level that fits your case — the AI writes the card accordingly and adds matching reflection questions.</p>
+      <div class="level-grid">
+        <div class="level-item">
+          <strong>Micro — operational</strong>
+          Direct individual choices at work. Conflict between two clear values (e.g. collegiality versus honesty). Low complexity: those involved and consequences are foreseeable.<br><br>
+          <em>Example:</em> a colleague makes a mistake — report it or discuss it confidentially?
+        </div>
+        <div class="level-item">
+          <strong>Meso — organisational</strong>
+          Friction between personal values and rules, protocols or organisational interests. Multiple stakeholders with conflicting interests.<br><br>
+          <em>Example:</em> budget cuts reduce care time — stick to the clock or stay longer for the patient?
+        </div>
+        <div class="level-item">
+          <strong>Macro — systemic</strong>
+          Structural conflicts where legislation, policy, culture and universal values intersect. No single "right" outcome.<br><br>
+          <em>Example:</em> AI in business processes — innovation versus privacy and autonomy?
+        </div>
+      </div>
+      <div class="tip" style="margin-top:1rem">💡 For meso and macro dilemmas, Ethos Studio adds an extra reflection question. The facilitator tip encourages naming the complexity rather than flattening the dilemma into one simple rule — aligned with Dr Kim Meijer's research (<a href="https://research.tilburguniversity.edu/en/publications/impossible-and-inevitable-reconstructing-the-critique-of-business/" target="_blank" rel="noopener">Impossible and Inevitable</a>).</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span class="section-num">5</span>Batch: multiple cards at once</div>
       <p>Click the <strong>"Batch (multiple)"</strong> tab. Enter multiple topics, one per line. Maximum 15 cards per run.</p>
       <div class="tip">💡 Example input:<br><br>A nurse who wonders whether to report a mistake<br>A teacher who catches a student cheating<br>A manager who must cut costs within their own team</div>
       <p style="margin-top:0.75rem">The app generates cards one by one and shows a progress bar. Afterwards, you can export all cards in one click as a multi-page PDF.</p>
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="section-num">5</span>The image</div>
-      <p>After generating a card, a <strong>matching image appears automatically</strong> via Pollinations.ai — a free image generation service. No extra steps needed.</p>
-      <p>Not happy with the image? Click <strong>↻ Different image</strong> below the photo to generate a new variant using the same prompt.</p>
-      <p>Each card also includes an <strong>image prompt</strong> in English. For higher quality, copy it into Midjourney, DALL-E or <a href="https://www.bing.com/images/create" target="_blank">bing.com/images/create</a> (free).</p>
-      <div class="tip">💡 When exporting to PDF, the Pollinations image is automatically embedded in the document.</div>
+      <div class="section-title"><span class="section-num">6</span>The image</div>
+      <p>After generating, an <strong>image prompt</strong> appears in English. Copy it to <a href="https://firefly.adobe.com/" target="_blank" rel="noopener">Adobe Firefly</a> for a professional image, or use the free preview button. Upload the image — it will be included in your PDF.</p>
+      <p>Alternative: use the prompt in Midjourney, DALL-E or <a href="https://www.bing.com/images/create" target="_blank">bing.com/images/create</a>.</p>
+      <div class="tip">💡 When exporting to PDF, the uploaded or preview image is automatically embedded.</div>
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="section-num">6</span>Switching language</div>
+      <div class="section-title"><span class="section-num">7</span>Switching language</div>
       <p>Use the <strong>🇳🇱 NL</strong> and <strong>🇬🇧 EN</strong> buttons in the top right of the app to switch. The full interface and all generated cards will appear in the chosen language. You can also switch language per card — generate a Dutch batch, then switch to English for the next one.</p>
     </div>
 
     <div class="section">
-      <div class="section-title"><span class="section-num">7</span>Sharing with colleagues</div>
-      <p>The file <code>ethos_studio.html</code> is fully self-contained — you can email it or put it on a USB drive. Each colleague opens the file in their browser (Chrome, Firefox, Edge) and enters their own API key.</p>
+      <div class="section-title"><span class="section-num">8</span>Sharing with colleagues</div>
+      <p>The app consists of <code>index.html</code> (quick start) and <code>studio.html</code> (full studio). Share the folder or link to <a href="https://rvodde-cyber.github.io/ethos-studio/" target="_blank" rel="noopener">rvodde-cyber.github.io/ethos-studio</a>. Each colleague opens the site in their browser and enters their own API key.</p>
       <div class="note">⚠️ An internet connection is required: the app communicates with the Anthropic API and loads fonts from Google Fonts.</div>
     </div>
   </div>
