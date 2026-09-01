@@ -5,6 +5,7 @@ const ASSETS = [
   './studio.html',
   './ethos_studio_handleiding.html',
   './manifest.json',
+  './ethos-config.js',
   './ethos-common.js',
   './ethos-common.css',
   './icons/icon-192.png',

@@ -7,6 +7,7 @@
   <link rel="manifest" href="manifest.json"/>
   <meta name="theme-color" content="#0F6E56"/>
   <link rel="stylesheet" href="ethos-common.css"/>
+  <script src="ethos-config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -40,26 +41,15 @@
     .lang-btn.active { background: var(--teal); border-color: var(--teal); color: white; font-weight: 600; }
     .help-link { font-size: 12px; color: var(--blue); text-decoration: none; padding: 4px 10px; border-radius: 20px; border: 1px solid var(--blue-bg); background: var(--blue-bg); }
 
-    /* ── API BANNER ── */
-    .api-banner { background: #FAEEDA; border-bottom: 1px solid #EF9F27; padding: 8px 2rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .api-banner label { font-size: 13px; font-weight: 500; color: #633806; white-space: nowrap; }
-    .api-banner input { flex: 1; min-width: 240px; padding: 5px 10px; font-size: 13px; border: 1px solid #EF9F27; border-radius: 6px; background: white; font-family: monospace; }
-    .api-banner button { padding: 5px 12px; font-size: 13px; border-radius: 6px; background: #633806; color: white; border: none; cursor: pointer; font-family: 'Source Sans 3', sans-serif; }
-    .api-banner .saved { color: var(--teal); font-size: 13px; font-weight: 500; display: none; }
-    .api-banner .api-hint { font-size: 12px; color: #633806; }
-    .api-banner .api-hint a { color: #633806; }
+    /* ── ACCESS BANNER ── */
+    .access-banner { background: var(--teal-bg); border-bottom: 1px solid var(--teal-border); padding: 8px 2rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .access-banner label { font-size: 13px; font-weight: 500; color: #04342C; white-space: nowrap; }
+    .access-banner input { flex: 1; min-width: 200px; padding: 5px 10px; font-size: 13px; border: 1px solid var(--teal-border); border-radius: 6px; background: white; font-family: inherit; }
+    .access-banner button { padding: 5px 12px; font-size: 13px; border-radius: 6px; background: var(--teal); color: white; border: none; cursor: pointer; font-family: 'Source Sans 3', sans-serif; }
+    .access-banner .saved { color: var(--teal); font-size: 13px; font-weight: 500; display: none; }
+    .access-banner .access-hint { font-size: 12px; color: #04342C; width: 100%; opacity: 0.85; }
 
-    .key-guide-wrap { padding: 0 2rem 12px; background: #FAEEDA; border-bottom: 1px solid #EF9F27; }
-    .key-guide-wrap details { font-size: 13px; color: #633806; }
-    .key-guide-wrap summary { cursor: pointer; font-weight: 600; padding: 4px 0; list-style: none; }
-    .key-guide-wrap summary::-webkit-details-marker { display: none; }
-    .key-guide-wrap summary::before { content: '▸ '; }
-    .key-guide-wrap details[open] summary::before { content: '▾ '; }
-    .key-guide-wrap ol { margin: 0.75rem 0 0.5rem 1.25rem; line-height: 1.55; }
-    .key-guide-wrap li { margin-bottom: 0.35rem; }
-    .key-guide-wrap .key-guide-tip { font-size: 12px; margin-top: 0.5rem; padding: 8px 10px; background: rgba(255,255,255,0.5); border-radius: 6px; }
-    .key-guide-wrap a { color: #633806; font-weight: 600; }
-    .remember-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #633806; width: 100%; margin-top: 4px; }
+    .remember-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #04342C; }
     .remember-row input { width: auto; accent-color: var(--teal); }
 
     /* ── LAYOUT ── */
@@ -206,7 +196,7 @@
     .footer-copy { font-size: 11px; opacity: 0.4; width: 100%; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); }
 
     @media print {
-      header, .api-banner, .container > .panel, .loading, #existing, .app-footer, .action-row, .firefly-panel, .img-actions { display: none !important; }
+      header, .access-banner, .container > .panel, .loading, #existing, .app-footer, .action-row, .firefly-panel, .img-actions { display: none !important; }
       body { background: white; }
       .result { display: block !important; border: none; box-shadow: none; }
       .result-body { padding: 0; }
@@ -234,33 +224,16 @@
     </div>
   </header>
 
-  <div class="api-banner">
-    <label for="api-input" data-i18n="apiLabel">🔑 Anthropic API-key:</label>
-    <input type="password" id="api-input" placeholder="sk-ant-api03-..." autocomplete="off"/>
-    <button onclick="saveKey()" data-i18n="apiSave">Opslaan</button>
-    <span class="saved" id="key-saved" data-i18n="apiSaved">✓ Opgeslagen voor deze sessie</span>
+  <div class="access-banner">
+    <label for="access-input" data-i18n="accessLabel">🔐 Toegangscode:</label>
+    <input type="password" id="access-input" autocomplete="off" data-i18n-placeholder="accessPlaceholder"/>
+    <button type="button" onclick="saveAccessCode()" data-i18n="accessSave">Opslaan</button>
+    <span class="saved" id="code-saved" data-i18n="accessSaved">✓ Opgeslagen</span>
     <label class="remember-row">
-      <input type="checkbox" id="remember-key" checked onchange="saveRememberPref()"/>
-      <span data-i18n="rememberKey">Onthoud op dit apparaat</span>
+      <input type="checkbox" id="remember-code" checked onchange="saveRememberCodePref()"/>
+      <span data-i18n="rememberCode">Onthoud op dit apparaat</span>
     </label>
-    <span class="api-hint"><span data-i18n="apiHint">Nog geen key?</span> <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></span>
-  </div>
-
-  <div class="key-guide-wrap">
-    <details id="key-guide-details">
-      <summary data-i18n="keyGuideToggle">Hoe krijg ik een Claude-key? (stap voor stap)</summary>
-      <p data-i18n="keyGuideIntro" style="margin-top:0.5rem;line-height:1.55"></p>
-      <ol>
-        <li id="studio-key-step1"></li>
-        <li data-i18n="keyStep2"></li>
-        <li data-i18n="keyStep3"></li>
-        <li data-i18n="keyStep4"></li>
-        <li data-i18n="keyStep5"></li>
-        <li data-i18n="keyStep6"></li>
-        <li data-i18n="keyStep7"></li>
-      </ol>
-      <p class="key-guide-tip" data-i18n="keyGuideTip"></p>
-    </details>
+    <span class="access-hint" data-i18n="accessHint">Je ontvangt de code van de beheerder van Ethos Studio.</span>
   </div>
 
   <div class="container">
@@ -303,7 +276,7 @@
       <div class="tab-pane active" id="tab-single">
         <p style="font-size:13px;color:var(--text-muted);margin-bottom:1rem;line-height:1.6" data-i18n="singleIntro">Omschrijf je eigen situatie in 2–3 zinnen. De app schrijft er een volledig verhaal van.</p>
         <div id="custom-wrap">
-          <textarea id="custom-topic" data-i18n-placeholder="customPlaceholder"></textarea>
+          <textarea id="custom-topic" maxlength="500" data-i18n-placeholder="customPlaceholder"></textarea>
         </div>
         <button type="button" class="examples-toggle" id="examples-toggle" onclick="toggleExamples()" data-i18n="showExamples">Of kies een voorbeeldcasus ▾</button>
         <div class="cases-grid" id="cases-grid"></div>
@@ -314,7 +287,7 @@
       </div>
       <div class="tab-pane" id="tab-batch">
         <p class="batch-hint" data-i18n="batchHint">Voer meerdere onderwerpen in — één per regel. Max. 15.</p>
-        <textarea id="batch-input" data-i18n-placeholder="batchPlaceholder"></textarea>
+        <textarea id="batch-input" maxlength="8000" data-i18n-placeholder="batchPlaceholder"></textarea>
         <button class="gen-btn" id="batch-btn" onclick="generateBatch()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
           <span data-i18n="batchBtn">Genereer alle kaarten</span>
@@ -430,19 +403,9 @@
 const T = {
   nl: {
     subtitle: 'Moreel beraad · Ethisch leren', help: '? Handleiding', homeLink: '← Start',
-    apiLabel: '🔑 Plak hier je Claude-key:', apiSave: 'Opslaan',
-    apiSaved: '✓ Opgeslagen',
-    rememberKey: 'Onthoud op dit apparaat',
-    apiHint: 'Nog geen key?',
-    keyGuideToggle: 'Hoe krijg ik een Claude-key? (stap voor stap)',
-    keyGuideIntro: 'Claude schrijft het verhaal. Jij hebt een persoonlijke sleutel (API-key) nodig — een soort wachtwoord voor de AI.',
-    keyStep2: 'Klik op Sign up en maak een gratis account (e-mail + wachtwoord).',
-    keyStep3: 'Log in. Klik links op API Keys.',
-    keyStep4: 'Klik + Create Key. Naam: Ethos Studio.',
-    keyStep5: 'Kopieer de code die begint met sk-ant-... (je ziet hem maar één keer).',
-    keyStep6: 'Plak de code in het gele veld hierboven.',
-    keyStep7: 'Klik Opslaan. Vink "Onthoud op dit apparaat" aan — daarna niet opnieuw invullen.',
-    keyGuideTip: '💡 ± 1 cent per kaart. Deel je key nooit — het is persoonlijk.',
+    accessLabel: '🔐 Toegangscode:', accessPlaceholder: 'Voer je code in…', accessSave: 'Opslaan',
+    accessSaved: '✓ Opgeslagen', rememberCode: 'Onthoud op dit apparaat',
+    accessHint: 'Je ontvangt de code van de beheerder van Ethos Studio.',
     panelTitle: 'Nieuwe kaart(en) genereren', ctxLabel: 'Sector / context',
     ctx_hospital: 'Ziekenhuis', ctx_care: 'Zorg', ctx_education: 'Onderwijs',
     ctx_defence: 'Defensie', ctx_business: 'Bedrijf', ctx_welfare: 'Welzijn',
@@ -480,31 +443,20 @@ const T = {
     showExamples: 'Of kies een voorbeeldcasus ▾',
     hideExamples: 'Voorbeelden verbergen ▴',
     ownTopic: 'Eigen situatie omschrijven...',
-    alertKey: 'Voer eerst je Anthropic API-key in bovenaan de pagina.',
+    alertAccessCode: 'Voer eerst je toegangscode in bovenaan de pagina.',
+    alertSourceLong: 'Een onderwerp is te lang. Gebruik maximaal 500 tekens per regel.',
     alertEmpty: 'Voer minimaal één onderwerp in.', alertMax: 'Maximum 15 kaarten per batch.',
     alertNoCards: 'Geen kaarten om te exporteren.', alertNoCard: 'Genereer eerst een gesprekskaart.',
-    alertFetch: 'Verbinding mislukt. Controleer je internet, of neem contact op met Anthropic als je account geen browser-toegang heeft (support@anthropic.com).',
-    alertCors: 'Je Anthropic-account staat geen browser-verzoeken toe. Mail support@anthropic.com of maak een persoonlijke organisatie aan in console.anthropic.com.',
-    alertCredits: 'API-tegoed op is — dit is los van Claude chat (claude.ai).\n\n• Ga naar console.anthropic.com → Plans & Billing\n• Koop credits of voeg een betaalmethode toe\n• Controleer of je de key van de juiste organisatie gebruikt\n\nClaude Pro/Max in de chat app geeft geen API-tegoed.',
+    alertFetch: 'Verbinding mislukt. Controleer je internet en probeer opnieuw.',
     copied: '✓ Gekopieerd',
     pdfHeader: 'GESPREKSKAART', pdfFooter: 'Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP',
     pdfImgText: 'Voeg hier een afbeelding in', pdfImgSub: '(Firefly · DALL·E · stockfoto)',
   },
   en: {
     subtitle: 'Moral deliberation · Ethical learning', help: '? User guide', homeLink: '← Home',
-    apiLabel: '🔑 Paste your Claude key here:', apiSave: 'Save',
-    apiSaved: '✓ Saved',
-    rememberKey: 'Remember on this device',
-    apiHint: 'No key yet?',
-    keyGuideToggle: 'How do I get a Claude key? (step by step)',
-    keyGuideIntro: 'Claude writes the story. You need a personal key (API key) — like a password for the AI.',
-    keyStep2: 'Click Sign up and create a free account (email + password).',
-    keyStep3: 'Log in. Click API Keys on the left.',
-    keyStep4: 'Click + Create Key. Name it Ethos Studio.',
-    keyStep5: 'Copy the code starting with sk-ant-... (you only see it once).',
-    keyStep6: 'Paste the code in the yellow field above.',
-    keyStep7: 'Click Save. Check "Remember on this device" — no need to enter again.',
-    keyGuideTip: '💡 About 1 cent per card. Never share your key — it is personal.',
+    accessLabel: '🔐 Access code:', accessPlaceholder: 'Enter your code…', accessSave: 'Save',
+    accessSaved: '✓ Saved', rememberCode: 'Remember on this device',
+    accessHint: 'You receive the code from the Ethos Studio administrator.',
     panelTitle: 'Generate card(s)', ctxLabel: 'Sector / context',
     ctx_hospital: 'Hospital', ctx_care: 'Healthcare', ctx_education: 'Education',
     ctx_defence: 'Defence', ctx_business: 'Business', ctx_welfare: 'Social work',
@@ -542,75 +494,14 @@ const T = {
     showExamples: 'Or pick an example case ▾',
     hideExamples: 'Hide examples ▴',
     ownTopic: 'Describe your own situation...',
-    alertKey: 'Please enter your Anthropic API key at the top of the page first.',
+    alertAccessCode: 'Please enter your access code at the top of the page first.',
+    alertSourceLong: 'One topic is too long. Use at most 500 characters per line.',
     alertEmpty: 'Please enter at least one topic.', alertMax: 'Maximum 15 cards per batch.',
     alertNoCards: 'No cards to export.', alertNoCard: 'Please generate a card first.',
-    alertFetch: 'Connection failed. Check your internet, or contact Anthropic if your account blocks browser access (support@anthropic.com).',
-    alertCors: 'Your Anthropic account does not allow browser requests. Email support@anthropic.com or create a personal organization at console.anthropic.com.',
-    alertCredits: 'API credits exhausted — separate from Claude chat (claude.ai).\n\n• Go to console.anthropic.com → Plans & Billing\n• Buy credits or add a payment method\n• Check you use the key from the correct organization\n\nClaude Pro/Max in the chat app does not include API credits.',
+    alertFetch: 'Connection failed. Check your internet and try again.',
     copied: '✓ Copied',
     pdfHeader: 'CONVERSATION CARD', pdfFooter: 'Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP',
     pdfImgText: 'Insert an image here', pdfImgSub: '(Firefly · DALL·E · stock photo)',
-  }
-};
-
-const CTX_DESC = {
-  nl: {
-    hospital: 'moderne Nederlandse ziekenhuisomgeving, professionele zorgverleners (verpleegkundige, arts, specialist)',
-    care: 'zorginstelling: GGZ, VVT, huisartsenpraktijk of thuiszorg',
-    education: 'school- of universitaire setting, rollen: docent, student, teamleider, ouder',
-    defence: 'militaire of civiele defensieomgeving, hiërarchie en veiligheid centraal',
-    business: 'kantoor- of organisatiesetting, rollen: medewerker, leidinggevende, HR, klant',
-    welfare: 'maatschappelijke dienstverlening, jeugdzorg of sociale wijkteams',
-    government: 'publieke sector, gemeente of uitvoeringsorganisatie',
-    general: 'neutrale alledaagse setting (thuis, straat, buurt)'
-  },
-  en: {
-    hospital: 'modern hospital environment, professional healthcare workers (nurse, doctor, specialist)',
-    care: 'healthcare setting: mental health, elderly care, GP practice or home care',
-    education: 'school or university setting, roles: teacher, student, team leader, parent',
-    defence: 'military or civilian defence environment, hierarchy and safety central',
-    business: 'office or organisational setting, roles: employee, manager, HR, client',
-    welfare: 'social services, youth care or community welfare teams',
-    government: 'public sector, municipality or government agency',
-    general: 'neutral everyday setting (home, street, neighbourhood)'
-  }
-};
-
-const CTX_IMG = {
-  hospital: 'modern hospital interior, warm clinical light, professional healthcare workers, cinematic depth of field',
-  care: 'care home or community health setting, warm light, compassionate caregiver, cinematic photography',
-  education: 'university classroom, natural light, students and teacher in discussion, cinematic depth of field',
-  defence: 'military setting, disciplined atmosphere, uniformed personnel, dramatic cinematic lighting',
-  business: 'modern office, professional colleagues in discussion, natural light, cinematic depth of field',
-  welfare: 'social work setting, community centre, warm empathetic atmosphere, cinematic photography',
-  government: 'government office, formal professional setting, natural light, cinematic photography',
-  general: 'everyday neutral setting, street or home, authentic human moment, cinematic lighting'
-};
-
-const LEVEL_DESC = {
-  nl: {
-    micro: 'Micro-niveau (operationeel): een directe individuele keuze; conflict tussen twee duidelijke waarden of normen; directe gevolgen en bekende betrokkenen.',
-    meso: 'Meso-niveau (organisatorisch): spanning tussen persoonlijke waarden en organisatieregels, protocollen of belangen; meerdere stakeholders met tegenstrijdige belangen.',
-    macro: 'Macro-niveau (systemisch): structureel conflict waarbij beleid, wetgeving, cultuur of maatschappelijke belangen elkaar kruisen; geen eenduidige uitkomst; vermijd het dilemma plat te maken met simpele regels.'
-  },
-  en: {
-    micro: 'Micro level (operational): a direct individual choice; conflict between two clear values or norms; direct consequences and known stakeholders.',
-    meso: 'Meso level (organisational): tension between personal values and organisational rules, protocols or interests; multiple stakeholders with conflicting interests.',
-    macro: 'Macro level (systemic): structural conflict where policy, legislation, culture or societal interests intersect; no single right answer; avoid flattening the dilemma into simple rules.'
-  }
-};
-
-const LEVEL_TIP = {
-  nl: {
-    micro: 'Help deelnemers de directe keuze en de twee botsende waarden scherp te benoemen.',
-    meso: 'Wijs erop dat protocollen de spanning niet wegnemen; laat tegenstrijdige belangen bespreekbaar zijn.',
-    macro: 'Voorkom snelle oplossingen; nodig uit om systemische belangen en lange-termijngevolgen te verkennen.'
-  },
-  en: {
-    micro: 'Help participants name the direct choice and the two clashing values clearly.',
-    meso: 'Point out that protocols do not remove the tension; make conflicting interests discussable.',
-    macro: 'Avoid quick fixes; invite exploration of systemic interests and long-term consequences.'
   }
 };
 
@@ -630,7 +521,7 @@ const CASES = {
 };
 
 // ══ STATE ══
-let lang = 'nl', apiKey = '', ctx = 'hospital', level = 'meso', selectedCase = -1, lastCard = null, batchCards = [];
+let lang = 'nl', ctx = 'hospital', level = 'meso', selectedCase = -1, lastCard = null, batchCards = [];
 let currentImagePrompt = '', uploadedImageDataUrl = '', examplesOpen = false;
 
 function t(key) { return T[lang][key] || key; }
@@ -640,17 +531,6 @@ function applyTranslations() {
     const k = el.getAttribute('data-i18n');
     if (T[lang][k] !== undefined) el.textContent = T[lang][k];
   });
-  const step1 = document.getElementById('studio-key-step1');
-  if (step1) {
-    const url = 'https://console.anthropic.com';
-    step1.innerHTML = lang === 'nl'
-      ? `Ga naar <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a>.`
-      : `Go to <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a>.`;
-  }
-  if (!sessionStorage.getItem('ethos_api_key') && !localStorage.getItem('ethos_api_key')) {
-    const details = document.getElementById('key-guide-details');
-    if (details) details.open = true;
-  }
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const k = el.getAttribute('data-i18n-placeholder');
     if (T[lang][k] !== undefined) el.placeholder = T[lang][k];
@@ -664,47 +544,32 @@ function applyTranslations() {
 }
 
 function setLang(l) { lang = l; applyTranslations(); }
-function loadSavedKey() {
+function loadSavedAccessCode() {
   try {
-    const remember = localStorage.getItem('ethos_remember_key') !== '0';
-    const checkbox = document.getElementById('remember-key');
+    const remember = localStorage.getItem('ethos_remember_code') !== '0';
+    const checkbox = document.getElementById('remember-code');
     if (checkbox) checkbox.checked = remember;
-    const savedKey = remember
-      ? (localStorage.getItem('ethos_api_key') || sessionStorage.getItem('ethos_api_key'))
-      : sessionStorage.getItem('ethos_api_key');
-    if (savedKey) {
-      apiKey = savedKey;
-      const apiInput = document.getElementById('api-input');
-      if (apiInput) apiInput.value = savedKey;
+    const code = ethosGetAccessCode();
+    if (code) {
+      const input = document.getElementById('access-input');
+      if (input) input.value = code;
     }
   } catch (e) {}
 }
-function saveRememberPref() {
-  try {
-    const remember = document.getElementById('remember-key').checked;
-    localStorage.setItem('ethos_remember_key', remember ? '1' : '0');
-    if (!remember) localStorage.removeItem('ethos_api_key');
-    else if (apiKey) localStorage.setItem('ethos_api_key', apiKey);
-  } catch (e) {}
+function saveRememberCodePref() {
+  ethosSaveRememberCodePref(document.getElementById('remember-code').checked);
 }
-function saveKey() {
-  apiKey = document.getElementById('api-input').value.trim();
-  if (apiKey) {
-    try {
-      sessionStorage.setItem('ethos_api_key', apiKey);
-      if (document.getElementById('remember-key').checked) {
-        localStorage.setItem('ethos_api_key', apiKey);
-        localStorage.setItem('ethos_remember_key', '1');
-      } else {
-        localStorage.removeItem('ethos_api_key');
-        localStorage.setItem('ethos_remember_key', '0');
-      }
-    } catch (e) {}
-    document.getElementById('key-saved').style.display = 'inline';
-    setTimeout(() => document.getElementById('key-saved').style.display = 'none', 3000);
+function saveAccessCode() {
+  const code = document.getElementById('access-input').value.trim();
+  if (!code) return;
+  ethosSaveAccessCode(code, document.getElementById('remember-code').checked);
+  const saved = document.getElementById('code-saved');
+  if (saved) {
+    saved.style.display = 'inline';
+    setTimeout(() => { saved.style.display = 'none'; }, 3000);
   }
 }
-loadSavedKey();
+loadSavedAccessCode();
 function setCtx(c) {
   ctx = c;
   document.querySelectorAll('.ctx-btn').forEach(b => b.classList.remove('active'));
@@ -745,96 +610,45 @@ function pick(i, btn) {
     if (cases[i].level) setLevel(cases[i].level);
   }
 }
-function buildPrompt(source) {
-  const levelDesc = LEVEL_DESC[lang][level];
-  const tipGuide = LEVEL_TIP[lang][level];
-  return lang==='nl'
-    ? `Je bent expert in het schrijven van gesprekskaarten voor moreel beraad (Stamkaart v2.0).
-
-Schrijf een gesprekskaart op basis van onderstaande casus. Regels:
-- Max 150 woorden (verhaal, exclusief titel en afsluitvraag)
-- Herkenbare situatie → moreel dilemma
-- Toon: empathisch, prikkelend, uitnodigend
-- Sluit af met PRECIES één krachtige open vraag
-- Schrijftaal: Nederlands
-- Setting: ${CTX_DESC.nl[ctx]}
-- Complexiteitsniveau: ${levelDesc}
-- Noem 2–4 relevante waarden (één woord of korte term per waarde)
-- Geef één korte begeleiderstip (max 25 woorden) voor degene die het gesprek faciliteert; richtlijn: ${tipGuide}
-
-Geef UITSLUITEND geldig JSON, geen markdown:
-{"title":"max 8 woorden","story":"max 150 woorden","closing_question":"één open vraag","values":["waarde1","waarde2"],"facilitator_tip":"korte tip","image_prompt":"English cinematic photo prompt, no text, ${CTX_IMG[ctx]}, focus on emotion"}
-
-CASUS:
-${source}`
-    : `You are an expert in writing conversation cards for moral deliberation (conversation card v2.0).
-
-Write a conversation card based on the case below. Rules:
-- Max 150 words (story only)
-- Recognisable situation leading to a moral dilemma
-- Tone: empathetic, thought-provoking
-- End with EXACTLY one powerful open question
-- Language: English
-- Setting: ${CTX_DESC.en[ctx]}
-- Complexity level: ${levelDesc}
-- Name 2–4 relevant values (one word or short term each)
-- Give one short facilitator tip (max 25 words) for whoever leads the conversation; guidance: ${tipGuide}
-
-Respond ONLY with valid JSON, no markdown:
-{"title":"max 8 words","story":"max 150 words","closing_question":"one open question","values":["value1","value2"],"facilitator_tip":"short tip","image_prompt":"English cinematic photo prompt, no text, ${CTX_IMG[ctx]}, focus on emotion"}
-
-CASE:
-${source}`;
+function validateSourceLength(source) {
+  if ((source || '').trim().length > ETHOS_MAX_SOURCE) throw new Error(t('alertSourceLong'));
 }
-function parseCardResponse(raw) {
-  const cleaned = raw.replace(/```json|```/g, '').trim();
-  try { return JSON.parse(cleaned); } catch (e) {}
-  const match = cleaned.match(/\{[\s\S]*\}/);
-  if (match) return JSON.parse(match[0]);
-  throw new Error(lang === 'nl' ? 'Ongeldige JSON van API' : 'Invalid JSON from API');
-}
-async function fetchAPI(prompt) {
-  let res;
+async function callAPI(source) {
+  validateSourceLength(source);
+  const accessCode = ethosGetAccessCode() || document.getElementById('access-input')?.value.trim();
+  if (!accessCode) throw new Error(t('alertAccessCode'));
   try {
-    res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-  } catch (e) {
-    throw new Error(t('alertFetch'));
+    return await ethosGenerateCard({ accessCode, lang, ctx, level, source: source.trim() });
+  } catch (err) {
+    throw new Error(err.message || t('alertFetch'));
   }
-  let data;
-  try { data = await res.json(); } catch (e) { throw new Error(t('alertFetch')); }
-  if (!res.ok || data.error) {
-    const msg = data.error?.message || 'API error';
-    if (/CORS|browser/i.test(msg)) throw new Error(t('alertCors'));
-    if (/credit balance|too low|billing|purchase credits/i.test(msg)) throw new Error(t('alertCredits'));
-    throw new Error(msg);
-  }
-  return data.content.map(i => i.text || '').join('');
 }
 function showApiError(err) {
   alert(err.message || t('alertFetch'));
 }
-async function callAPI(prompt) {
-  const retryNote = lang === 'nl'
-    ? '\n\nGeef UITSLUITEND één geldig JSON-object terug. Geen markdown, geen uitleg.'
-    : '\n\nReturn ONLY one valid JSON object. No markdown, no commentary.';
-  try {
-    return parseCardResponse(await fetchAPI(prompt));
-  } catch (firstErr) {
-    return parseCardResponse(await fetchAPI(prompt + retryNote));
+async function generate() {
+  if (!ethosGetAccessCode() && !document.getElementById('access-input')?.value.trim()) {
+    alert(t('alertAccessCode'));
+    return;
   }
+  const btn = document.getElementById('gen-btn');
+  btn.disabled = true;
+  document.getElementById('result').classList.remove('show');
+  document.getElementById('loading').classList.add('show');
+  try {
+    const cases = CASES[lang];
+    const custom = (document.getElementById('custom-topic').value || '').trim();
+    const source = (selectedCase >= 0 && selectedCase < cases.length && !custom)
+      ? `${cases[selectedCase].title}\n\n${cases[selectedCase].text}`
+      : (custom || 'a moral dilemma');
+    const parsed = await callAPI(source);
+    lastCard = parsed;
+    showCard(parsed);
+  } catch(err) {
+    document.getElementById('loading').classList.remove('show');
+    showApiError(err);
+  }
+  btn.disabled = false;
 }
 function buildFireflyPrompt(imagePrompt) {
   if (!imagePrompt) return '';
@@ -905,32 +719,17 @@ function printCard() {
   if (!lastCard) { alert(t('alertNoCard')); return; }
   window.print();
 }
-async function generate() {
-  if (!apiKey) { alert(t('alertKey')); return; }
-  const btn = document.getElementById('gen-btn');
-  btn.disabled = true;
-  document.getElementById('result').classList.remove('show');
-  document.getElementById('loading').classList.add('show');
-  try {
-    const cases = CASES[lang];
-    const custom = (document.getElementById('custom-topic').value || '').trim();
-    const source = (selectedCase >= 0 && selectedCase < cases.length && !custom)
-      ? `Title: ${cases[selectedCase].title}\n\n${cases[selectedCase].text}`
-      : (custom || 'a moral dilemma');
-    const parsed = await callAPI(buildPrompt(source));
-    lastCard = parsed;
-    showCard(parsed);
-  } catch(err) {
-    document.getElementById('loading').classList.remove('show');
-    showApiError(err);
-  }
-  btn.disabled = false;
-}
 async function generateBatch() {
-  if (!apiKey) { alert(t('alertKey')); return; }
+  if (!ethosGetAccessCode() && !document.getElementById('access-input')?.value.trim()) {
+    alert(t('alertAccessCode'));
+    return;
+  }
   const topics = document.getElementById('batch-input').value.trim().split('\n').map(l=>l.trim()).filter(l=>l.length>3);
   if (!topics.length) { alert(t('alertEmpty')); return; }
   if (topics.length>15) { alert(t('alertMax')); return; }
+  for (const topic of topics) {
+    if (topic.length > ETHOS_MAX_SOURCE) { alert(t('alertSourceLong')); return; }
+  }
   batchCards = [];
   document.getElementById('batch-btn').disabled = true;
   document.getElementById('batch-results').innerHTML = '';
@@ -947,7 +746,7 @@ async function generateBatch() {
     ph.innerHTML = `<div class="batch-card-status">⏳ ${topics[i]}</div>`;
     document.getElementById('batch-results').appendChild(ph);
     try {
-      const card = await callAPI(buildPrompt(topics[i]));
+      const card = await callAPI(topics[i]);
       batchCards.push(card);
       document.getElementById('bc-'+i).innerHTML = `<div class="batch-card-title">${card.title}</div><div class="batch-card-story">${card.story}</div><div class="batch-card-q">${card.closing_question}</div><div class="batch-card-status" style="color:var(--teal)">${t('batchGenerated')}</div>`;
     } catch(err) {
@@ -1190,7 +989,7 @@ function initFromStartPage() {
     sessionStorage.removeItem('ethos_topic');
     sessionStorage.removeItem('ethos_level');
     history.replaceState({}, '', 'studio.html');
-    if (apiKey && document.getElementById('custom-topic').value.trim()) generate();
+    if (ethosGetAccessCode() && document.getElementById('custom-topic').value.trim()) generate();
   }
 }
 initFromStartPage();
