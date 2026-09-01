@@ -10,6 +10,7 @@
   <meta name="apple-mobile-web-app-title" content="Ethos Studio"/>
   <link rel="apple-touch-icon" href="icons/icon-192.png"/>
   <link rel="stylesheet" href="ethos-common.css"/>
+  <script src="ethos-config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -119,6 +120,21 @@
     textarea:focus, input:focus { outline: none; border-color: var(--blue); }
     .field { margin-bottom: 1.25rem; }
     .field-hint { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+
+    .access-row {
+      display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+      background: var(--teal-bg); border: 1px solid var(--teal-border); border-radius: var(--radius-sm);
+      padding: 10px 12px; margin-bottom: 0.75rem;
+    }
+    .access-row label { font-size: 12px; font-weight: 600; color: #04342C; white-space: nowrap; }
+    .access-row input {
+      flex: 1; min-width: 180px; font-family: inherit; font-size: 13px;
+      border: 1px solid var(--teal-border); border-radius: 6px; padding: 8px 10px;
+    }
+    .access-row button {
+      padding: 7px 12px; font-size: 12px; border-radius: 6px; background: var(--teal);
+      color: white; border: none; cursor: pointer; font-family: inherit;
+    }
 
     .api-row {
       display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
@@ -235,7 +251,7 @@
       <h2 data-i18n="howTitle">Zo maak je een kaart</h2>
       <ol class="how-steps">
         <li data-i18n="how1">Beschrijf een situatie in 2–3 zinnen en kies sector en complexiteitsniveau.</li>
-        <li data-i18n="how2">Genereer de kaart met je eigen Claude API-key (± €0,01 per kaart).</li>
+        <li data-i18n="how2">Genereer de kaart met je toegangscode (max. 10 kaarten per uur).</li>
         <li data-i18n="how3">Kopieer de Firefly-prompt, maak optioneel een foto, en exporteer als PDF (A4 of A5).</li>
       </ol>
     </article>
@@ -287,8 +303,8 @@
 
     <div class="field">
       <label class="field-label" for="topic" data-i18n="topicLabel">De situatie (2–3 zinnen)</label>
-      <textarea id="topic" name="topic" required data-i18n-placeholder="topicPlaceholder"></textarea>
-      <p class="field-hint" data-i18n="topicHint">Bijv.: een verpleegkundige ziet dat een collega een fout maakt, maar wil de sfeer niet verstoren.</p>
+      <textarea id="topic" name="topic" required maxlength="500" data-i18n-placeholder="topicPlaceholder"></textarea>
+      <p class="field-hint"><span data-i18n="topicHint">Bijv.: een verpleegkundige ziet dat een collega een fout maakt, maar wil de sfeer niet verstoren.</span> <span data-i18n="charLimit">(max. 500 tekens)</span></p>
     </div>
 
     <div class="field">
@@ -296,32 +312,16 @@
       <textarea id="focus" name="focus" rows="2" data-i18n-placeholder="focusPlaceholder"></textarea>
     </div>
 
-    <div class="key-guide">
-      <span class="key-guide-title" data-i18n="keyGuideTitle">Eerste keer? Zo regel je een Claude-key</span>
-      <p class="key-guide-intro" data-i18n="keyGuideIntro">Ethos Studio laat Claude het verhaal schrijven. Daarvoor heb je een persoonlijke sleutel (API-key) nodig — een soort inlogcode voor de AI. Even regelen, daarna werkt het jarenlang.</p>
-      <ol>
-        <li id="key-step1" data-i18n="keyStep1">Ga naar <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a> (open in een nieuw tabblad).</li>
-        <li data-i18n="keyStep2">Klik op <strong>Sign up</strong> en maak een gratis account. Je e-mailadres en een wachtwoord zijn genoeg.</li>
-        <li data-i18n="keyStep3">Log in. Klik in het menu links op <strong>API Keys</strong>.</li>
-        <li data-i18n="keyStep4">Klik op <strong>+ Create Key</strong>. Geef een naam, bijvoorbeeld <em>Ethos Studio</em>.</li>
-        <li data-i18n="keyStep5">Er verschijnt een lange code die begint met <strong>sk-ant-...</strong> Klik op <strong>Copy</strong> (Kopiëren). Bewaar hem even — je ziet hem maar één keer.</li>
-        <li data-i18n="keyStep6">Kom terug naar deze pagina. Plak de code in het gele veld hieronder.</li>
-        <li data-i18n="keyStep7">Klik op <strong>Opslaan</strong>. Klaar! Je hoeft dit per browserbezoek maar één keer te doen.</li>
-      </ol>
-      <p class="key-guide-tip" data-i18n="keyGuideTip">💡 Eén gesprekskaart kost ongeveer 1 cent. Deel je key nooit met anderen — het is persoonlijk, zoals een wachtwoord.</p>
-      <p class="key-guide-tip" data-i18n="keyGuideCredits">⚠️ Claude chat (claude.ai) en API-tegoed zijn apart. Werkt chat wel maar Ethos Studio niet? Ga naar console.anthropic.com → <strong>Plans &amp; Billing</strong> en koop credits (vaak vanaf $5).</p>
-    </div>
-
-    <div class="api-row">
-      <label for="api-key" data-i18n="apiLabel">🔑 Plak hier je Claude-key</label>
-      <input type="password" id="api-key" placeholder="sk-ant-api03-..." autocomplete="off"/>
-      <button type="button" onclick="saveKey()" data-i18n="apiSave">Opslaan</button>
+    <div class="access-row">
+      <label for="access-code" data-i18n="accessLabel">🔐 Toegangscode</label>
+      <input type="password" id="access-code" autocomplete="off" data-i18n-placeholder="accessPlaceholder"/>
+      <button type="button" onclick="saveAccessCode()" data-i18n="accessSave">Opslaan</button>
     </div>
     <label class="remember-row">
-      <input type="checkbox" id="remember-key" checked onchange="saveRememberPref()"/>
-      <span data-i18n="rememberKey">Onthoud op dit apparaat (je hoeft de key niet elke keer opnieuw in te vullen)</span>
+      <input type="checkbox" id="remember-code" checked onchange="saveRememberCodePref()"/>
+      <span data-i18n="rememberCode">Onthoud op dit apparaat</span>
     </label>
-    <p class="api-hint"><span data-i18n="apiHint">Gratis account op</span> <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> · <span data-i18n="apiCost">± €0,01 per kaart</span></p>
+    <p class="field-hint" data-i18n="accessHint">Je ontvangt de code van de beheerder van Ethos Studio.</p>
 
     <button type="submit" class="submit-btn" data-i18n="submitBtn">Genereer gesprekskaart →</button>
 
@@ -371,29 +371,20 @@ const T = {
     complexMacro: 'Structureel conflict: beleid, wetgeving, cultuur; geen eenduidige uitkomst.',
     howTitle: 'Zo maak je een kaart',
     how1: 'Beschrijf een situatie in 2–3 zinnen en kies sector en complexiteitsniveau.',
-    how2: 'Genereer de kaart met je eigen Claude API-key (± €0,01 per kaart).',
+    how2: 'Genereer de kaart met je toegangscode (max. 10 kaarten per uur).',
     how3: 'Kopieer de Firefly-prompt, maak optioneel een foto, en exporteer als PDF (A4 of A5).',
     ctaMake: 'Maak je eigen kaart ↓',
+    charLimit: '(max. 500 tekens)',
+    accessLabel: '🔐 Toegangscode',
+    accessPlaceholder: 'Voer je code in…',
+    accessSave: 'Opslaan',
+    rememberCode: 'Onthoud op dit apparaat',
+    accessHint: 'Je ontvangt de code van de beheerder van Ethos Studio.',
     topicLabel: 'De situatie (2–3 zinnen)',
     topicPlaceholder: 'Omschrijf kort wie betrokken is, wat er speelt en waar de spanning zit…',
     topicHint: 'Bijv.: een verpleegkundige ziet dat een collega een fout maakt, maar wil de sfeer niet verstoren.',
     focusLabel: 'Waar draait het dilemma om? (optioneel)',
     focusPlaceholder: 'Bijv.: loyaliteit versus patiëntveiligheid, of: wie heeft hier het laatste woord?',
-    keyGuideTitle: 'Eerste keer? Zo regel je een Claude-key',
-    keyGuideIntro: 'Ethos Studio laat Claude het verhaal schrijven. Daarvoor heb je een persoonlijke sleutel (API-key) nodig — een soort inlogcode voor de AI. Even regelen, daarna werkt het jarenlang.',
-    keyStep1: 'Ga naar console.anthropic.com (open in een nieuw tabblad).',
-    keyStep2: 'Klik op Sign up en maak een gratis account. Je e-mailadres en een wachtwoord zijn genoeg.',
-    keyStep3: 'Log in. Klik in het menu links op API Keys.',
-    keyStep4: 'Klik op + Create Key. Geef een naam, bijvoorbeeld Ethos Studio.',
-    keyStep5: 'Er verschijnt een lange code die begint met sk-ant-... Klik op Copy (Kopiëren). Bewaar hem even — je ziet hem maar één keer.',
-    keyStep6: 'Kom terug naar deze pagina. Plak de code in het gele veld hieronder.',
-    keyStep7: 'Klik op Opslaan. Vink "Onthoud op dit apparaat" aan — dan hoef je de key hierna niet opnieuw in te vullen.',
-    keyGuideTip: '💡 Eén gesprekskaart kost ongeveer 1 cent. Deel je key nooit met anderen — het is persoonlijk, zoals een wachtwoord.',
-    keyGuideCredits: '⚠️ Claude chat (claude.ai) en API-tegoed zijn apart. Werkt chat wel maar Ethos Studio niet? Ga naar console.anthropic.com → Plans & Billing en koop credits (vaak vanaf $5).',
-    apiLabel: '🔑 Plak hier je Claude-key', apiSave: 'Opslaan',
-    rememberKey: 'Onthoud op dit apparaat (je hoeft de key niet elke keer opnieuw in te vullen)',
-    apiSaved: '✓ Opgeslagen',
-    apiHint: 'Gratis account op', apiCost: '± €0,01 per kaart',
     submitBtn: 'Genereer gesprekskaart →',
     studioLink: 'Volledige studio (batch & voorbeelden)',
     guideLink: 'Handleiding',
@@ -401,7 +392,8 @@ const T = {
     f2t: 'Klaar voor gebruik', f2d: 'Verhaal, afsluitvraag, reflectievragen en afbeelding.',
     f3t: 'Exporteer als PDF', f3d: 'Direct inzetbaar in de klas of op de werkvloer.',
     alertTopic: 'Beschrijf eerst de situatie in een paar zinnen.',
-    alertKey: 'Voer eerst je Anthropic API-key in en klik op Opslaan.'
+    alertAccessCode: 'Voer eerst je toegangscode in en klik op Opslaan.',
+    alertSourceLong: 'De situatie is te lang. Gebruik maximaal 500 tekens.'
   },
   en: {
     tagline: 'Conversation cards for moral deliberation',
@@ -430,29 +422,20 @@ const T = {
     complexMacro: 'Structural conflict: policy, legislation, culture; no single right answer.',
     howTitle: 'How to make a card',
     how1: 'Describe a situation in 2–3 sentences and choose sector and complexity level.',
-    how2: 'Generate the card with your own Claude API key (about €0.01 per card).',
+    how2: 'Generate the card with your access code (max. 10 cards per hour).',
     how3: 'Copy the Firefly prompt, optionally create an image, and export as PDF (A4 or A5).',
     ctaMake: 'Make your own card ↓',
+    charLimit: '(max. 500 characters)',
+    accessLabel: '🔐 Access code',
+    accessPlaceholder: 'Enter your code…',
+    accessSave: 'Save',
+    rememberCode: 'Remember on this device',
+    accessHint: 'You receive the code from the Ethos Studio administrator.',
     topicLabel: 'The situation (2–3 sentences)',
     topicPlaceholder: 'Briefly describe who is involved, what is happening and where the tension lies…',
     topicHint: 'E.g.: a nurse sees a colleague make a mistake but does not want to disrupt the team atmosphere.',
     focusLabel: 'What is the dilemma about? (optional)',
     focusPlaceholder: 'E.g.: loyalty versus patient safety, or: who has the final say here?',
-    keyGuideTitle: 'First time? How to get a Claude key',
-    keyGuideIntro: 'Ethos Studio uses Claude to write the story. You need a personal key (API key) — like a login code for the AI. Set it up once, then you are good to go.',
-    keyStep1: 'Go to console.anthropic.com (open in a new tab).',
-    keyStep2: 'Click Sign up and create a free account. Your email and a password are enough.',
-    keyStep3: 'Log in. Click API Keys in the left menu.',
-    keyStep4: 'Click + Create Key. Give it a name, e.g. Ethos Studio.',
-    keyStep5: 'A long code appears starting with sk-ant-... Click Copy. Save it — you only see it once.',
-    keyStep6: 'Come back to this page. Paste the code in the yellow field below.',
-    keyStep7: 'Click Save. Check "Remember on this device" — then you will not need to enter the key again.',
-    keyGuideTip: '💡 One conversation card costs about 1 cent. Never share your key — it is personal, like a password.',
-    keyGuideCredits: '⚠️ Claude chat (claude.ai) and API credits are separate. Chat works but Ethos Studio does not? Go to console.anthropic.com → Plans & Billing and buy credits (often from $5).',
-    apiLabel: '🔑 Paste your Claude key here', apiSave: 'Save',
-    rememberKey: 'Remember on this device (no need to enter the key every time)',
-    apiSaved: '✓ Saved',
-    apiHint: 'Free account at', apiCost: '± €0.01 per card',
     submitBtn: 'Generate conversation card →',
     studioLink: 'Full studio (batch & examples)',
     guideLink: 'User guide',
@@ -460,7 +443,8 @@ const T = {
     f2t: 'Ready to use', f2d: 'Story, closing question, reflection prompts and image.',
     f3t: 'Export as PDF', f3d: 'Ready for class or the workplace.',
     alertTopic: 'Please describe the situation in a few sentences first.',
-    alertKey: 'Please enter your Anthropic API key and click Save.'
+    alertAccessCode: 'Please enter your access code and click Save.',
+    alertSourceLong: 'The situation text is too long. Use at most 500 characters.'
   }
 };
 
@@ -477,16 +461,8 @@ function setLang(l) {
   document.getElementById('lang-en').classList.toggle('active', l === 'en');
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const k = el.getAttribute('data-i18n');
-    if (k === 'keyStep1') return;
     if (T[lang][k] !== undefined) el.textContent = T[lang][k];
   });
-  const step1 = document.getElementById('key-step1');
-  if (step1) {
-    const url = 'https://console.anthropic.com';
-    step1.innerHTML = lang === 'nl'
-      ? `Ga naar <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a> (open in een nieuw tabblad).`
-      : `Go to <a href="${url}" target="_blank" rel="noopener">console.anthropic.com</a> (open in a new tab).`;
-  }
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const k = el.getAttribute('data-i18n-placeholder');
     if (T[lang][k] !== undefined) el.placeholder = T[lang][k];
@@ -506,66 +482,49 @@ function setLevel(l, btn) {
   btn.classList.add('active');
 }
 
-function loadSavedKey() {
+function loadSavedAccessCode() {
   try {
-    const remember = localStorage.getItem('ethos_remember_key') !== '0';
-    const checkbox = document.getElementById('remember-key');
+    const remember = localStorage.getItem('ethos_remember_code') !== '0';
+    const checkbox = document.getElementById('remember-code');
     if (checkbox) checkbox.checked = remember;
-    const key = remember
-      ? (localStorage.getItem('ethos_api_key') || sessionStorage.getItem('ethos_api_key'))
-      : sessionStorage.getItem('ethos_api_key');
-    if (key) document.getElementById('api-key').value = key;
+    const code = ethosGetAccessCode();
+    if (code) document.getElementById('access-code').value = code;
     const savedLang = sessionStorage.getItem('ethos_lang') || localStorage.getItem('ethos_lang');
     if (savedLang === 'en' || savedLang === 'nl') setLang(savedLang);
   } catch (e) {}
 }
 
-function saveRememberPref() {
-  try {
-    const remember = document.getElementById('remember-key').checked;
-    localStorage.setItem('ethos_remember_key', remember ? '1' : '0');
-    if (!remember) localStorage.removeItem('ethos_api_key');
-    else {
-      const key = document.getElementById('api-key').value.trim();
-      if (key) localStorage.setItem('ethos_api_key', key);
-    }
-  } catch (e) {}
+function saveRememberCodePref() {
+  ethosSaveRememberCodePref(document.getElementById('remember-code').checked);
 }
 
-function saveKey() {
-  const key = document.getElementById('api-key').value.trim();
-  if (!key) return;
-  try {
-    sessionStorage.setItem('ethos_api_key', key);
-    sessionStorage.setItem('ethos_lang', lang);
-    if (document.getElementById('remember-key').checked) {
-      localStorage.setItem('ethos_api_key', key);
-      localStorage.setItem('ethos_remember_key', '1');
-      localStorage.setItem('ethos_lang', lang);
-    } else {
-      localStorage.removeItem('ethos_api_key');
-      localStorage.setItem('ethos_remember_key', '0');
-    }
-  } catch (e) {}
+function saveAccessCode() {
+  const code = document.getElementById('access-code').value.trim();
+  if (!code) return;
+  ethosSaveAccessCode(code, document.getElementById('remember-code').checked);
+  try { sessionStorage.setItem('ethos_lang', lang); } catch (e) {}
 }
 
-loadSavedKey();
+loadSavedAccessCode();
 
 function startGenerate(e) {
   e.preventDefault();
   const topic = document.getElementById('topic').value.trim();
   const focus = document.getElementById('focus').value.trim();
-  const key = document.getElementById('api-key').value.trim();
+  const accessCode = document.getElementById('access-code').value.trim();
 
   if (!topic) { alert(t('alertTopic')); return; }
-  if (!key) { alert(t('alertKey')); return; }
+  if (topic.length > ETHOS_MAX_SOURCE) { alert(t('alertSourceLong')); return; }
+  if (!accessCode) { alert(t('alertAccessCode')); return; }
 
   const source = focus
     ? `${topic}\n\nDilemma-focus / dilemma focus: ${focus}`
     : topic;
 
+  if (source.length > ETHOS_MAX_SOURCE) { alert(t('alertSourceLong')); return; }
+
   try {
-    sessionStorage.setItem('ethos_api_key', key);
+    ethosSaveAccessCode(accessCode, document.getElementById('remember-code').checked);
     sessionStorage.setItem('ethos_lang', lang);
     sessionStorage.setItem('ethos_ctx', ctx);
     sessionStorage.setItem('ethos_level', level);

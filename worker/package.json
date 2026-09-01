@@ -1,0 +1,13 @@
+{
+  "name": "ethos-studio-api",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "kv:create": "wrangler kv namespace create RATE_LIMIT"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
