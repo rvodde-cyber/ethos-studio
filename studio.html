@@ -4,6 +4,9 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ethos Studio — Studio</title>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0F6E56"/>
+  <link rel="stylesheet" href="ethos-common.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -78,9 +81,6 @@
     .level-btn strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
     .level-btn span { font-size: 11px; }
     .level-btn:hover { background: var(--surface); border-color: rgba(0,0,0,0.2); }
-    .level-btn.active { background: var(--blue-bg); border-color: #85B7EB; color: #0C447C; font-weight: 600; }
-    .level-btn.active strong { color: #0C447C; }
-    .level-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
 
     /* ── TABS ── */
     .tab-row { display: flex; gap: 4px; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
@@ -122,7 +122,7 @@
     .result-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
     .ctx-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; background: var(--teal-bg); color: var(--teal); }
     .result-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-    .level-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; background: var(--blue-bg); color: var(--blue); }
+    .level-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5; }
     .result-body { padding: 1.5rem; }
     .result-title { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; margin-bottom: 1rem; line-height: 1.3; }
     .result-story { font-size: 15px; line-height: 1.8; margin-bottom: 1.25rem; }
@@ -281,14 +281,17 @@
       <div class="level-grid">
         <button type="button" class="level-btn" data-level="micro" onclick="setLevel('micro', this)">
           <strong data-i18n="level_micro">Micro</strong>
+          <span class="level-btn-stars" aria-hidden="true">★☆☆</span>
           <span data-i18n="level_micro_hint">Individuele keuze op de werkvloer</span>
         </button>
         <button type="button" class="level-btn active" data-level="meso" onclick="setLevel('meso', this)">
           <strong data-i18n="level_meso">Meso</strong>
+          <span class="level-btn-stars" aria-hidden="true">★★☆</span>
           <span data-i18n="level_meso_hint">Organisatie en belangen</span>
         </button>
         <button type="button" class="level-btn" data-level="macro" onclick="setLevel('macro', this)">
           <strong data-i18n="level_macro">Macro</strong>
+          <span class="level-btn-stars" aria-hidden="true">★★★</span>
           <span data-i18n="level_macro_hint">Maatschappelijk en systemisch</span>
         </button>
       </div>
@@ -378,7 +381,8 @@
       </div>
       <div class="action-row">
         <button class="act-btn" onclick="copyCard(this)" data-i18n="copy">Kopiëren</button>
-        <button class="act-btn" onclick="exportPDF()" data-i18n="exportPdf">📄 PDF</button>
+        <button class="act-btn" onclick="exportPDF('a4')" data-i18n="exportPdfA4">📄 PDF A4</button>
+        <button class="act-btn" onclick="exportPDF('a5')" data-i18n="exportPdfA5">📄 PDF A5</button>
         <button class="act-btn" onclick="printCard()" data-i18n="printBtn">🖨️ Print</button>
         <button class="act-btn" onclick="generate()" data-i18n="regenerate">Opnieuw ↺</button>
       </div>
@@ -418,6 +422,7 @@
   </footer>
 </div>
 
+<script src="ethos-common.js"></script>
 <script>
 // ══════════════════════════════════════════════════════
 // TRANSLATIONS
@@ -470,7 +475,7 @@ const T = {
     imgClear: '✕ Wis afbeelding',
     tipLabel: 'Tip voor begeleider',
     fq1: 'Wat zou jij doen en waarom?', fq2: 'Welke waarden zijn hier in het spel?',
-    copy: 'Kopiëren', exportPdf: '📄 PDF', printBtn: '🖨️ Print', regenerate: 'Opnieuw ↺',
+    copy: 'Kopiëren', exportPdfA4: '📄 PDF A4', exportPdfA5: '📄 PDF A5', printBtn: '🖨️ Print', regenerate: 'Opnieuw ↺',
     existingLabel: 'Voorbeeldcasussen (ter inspiratie)',
     showExamples: 'Of kies een voorbeeldcasus ▾',
     hideExamples: 'Voorbeelden verbergen ▴',
@@ -532,7 +537,7 @@ const T = {
     imgClear: '✕ Clear image',
     tipLabel: 'Facilitator tip',
     fq1: 'What would you do and why?', fq2: 'What values are at stake here?',
-    copy: 'Copy', exportPdf: '📄 PDF', printBtn: '🖨️ Print', regenerate: 'Regenerate ↺',
+    copy: 'Copy', exportPdfA4: '📄 PDF A4', exportPdfA5: '📄 PDF A5', printBtn: '🖨️ Print', regenerate: 'Regenerate ↺',
     existingLabel: 'Example cases (for inspiration)',
     showExamples: 'Or pick an example case ▾',
     hideExamples: 'Hide examples ▴',
@@ -655,6 +660,7 @@ function applyTranslations() {
   document.documentElement.lang = lang;
   renderCaseButtons();
   renderExisting();
+  if (typeof ethosUpdateLevelButtons === 'function') ethosUpdateLevelButtons();
 }
 
 function setLang(l) { lang = l; applyTranslations(); }
@@ -965,7 +971,7 @@ function clearBatch() {
 async function exportBatchPDF() {
   const cards = batchCards.filter(Boolean);
   if (!cards.length) { alert(t('alertNoCards')); return; }
-  await renderCardToPDF(cards);
+  await renderCardToPDF(cards, 'a4');
 }
 function buildPollinationsUrl(prompt) {
   return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt+', no text, no watermark, no logo')}?width=800&height=500&nologo=true&seed=${Math.floor(Math.random()*99999)}`;
@@ -979,7 +985,7 @@ function showCard(p) {
   document.getElementById('r-story').textContent = p.story||'';
   document.getElementById('r-question').textContent = p.closing_question||'';
   document.getElementById('ctx-tag').textContent = t('ctx_'+ctx);
-  document.getElementById('level-tag').textContent = t('level_'+level);
+  ethosApplyLevelBadge(document.getElementById('level-tag'), level, t('level_'+level));
 
   const valuesEl = document.getElementById('r-values');
   if (Array.isArray(p.values) && p.values.length) {
@@ -1018,7 +1024,7 @@ function copyCard(btn) {
   if (!lastCard) return;
   const parts = [lastCard.title, '', lastCard.story, '', lastCard.closing_question];
   if (Array.isArray(lastCard.values) && lastCard.values.length) parts.push('', lastCard.values.join(' · '));
-  parts.push('', `${lang === 'nl' ? 'Complexiteit' : 'Complexity'}: ${t('level_'+level)}`);
+  parts.push('', `${lang === 'nl' ? 'Complexiteit' : 'Complexity'}: ${t('level_'+level)} ${ethosLevelStars(level)}`);
   parts.push('', t('fq1'), t('fq2'));
   if (lastCard.facilitator_tip) parts.push('', `${t('tipLabel')}: ${lastCard.facilitator_tip}`);
   navigator.clipboard.writeText(parts.join('\n')).then(() => flashCopied(btn));
@@ -1027,15 +1033,15 @@ function copyFireflyPrompt(btn) {
   if (!lastCard?.image_prompt) return;
   navigator.clipboard.writeText(buildFireflyPrompt(lastCard.image_prompt)).then(() => flashCopied(btn));
 }
-async function exportPDF() {
+async function exportPDF(format) {
   if (!lastCard) { alert(t('alertNoCard')); return; }
   const card = { ...lastCard };
   card._imageDataUrl = await getImageDataUrlForExport();
-  await renderCardToPDF([card]);
+  await renderCardToPDF([card], format || 'a4');
 }
 async function exportAllPDF() {
   const cards = CASES[lang].map(c=>({title:c.title,story:c.text,closing_question:c.question,image_prompt:null}));
-  await renderCardToPDF(cards);
+  await renderCardToPDF(cards, 'a4');
 }
 function fetchImageDataUrl(prompt) {
   return new Promise(resolve => {
@@ -1055,59 +1061,69 @@ function fetchImageDataUrl(prompt) {
     img.src = buildPollinationsUrl(prompt);
   });
 }
-async function renderCardToPDF(cards) {
+async function renderCardToPDF(cards, format = 'a4') {
   const {jsPDF} = window.jspdf;
-  const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
-  const pageW=210,pageH=297,marginL=20,marginR=20,contentW=170;
+  const isA5 = format === 'a5';
+  const doc = new jsPDF({orientation:'portrait',unit:'mm',format: isA5 ? 'a5' : 'a4'});
+  const pageW = isA5 ? 148 : 210;
+  const pageH = isA5 ? 210 : 297;
+  const marginL = isA5 ? 12 : 20;
+  const marginR = isA5 ? 12 : 20;
+  const contentW = pageW - marginL - marginR;
+  const titleSize = isA5 ? 14 : 18;
+  const bodySize = isA5 ? 9 : 11;
+  const qSize = isA5 ? 9 : 11;
   const teal=[15,110,86],tealLight=[225,245,238],tealBorder=[93,202,165];
   const blueLight=[230,241,251],blueBorder=[133,183,235];
   const darkGrey=[40,40,40],midGrey=[100,100,100],white=[255,255,255];
+  const levelLabel = `${t('level_'+level)||level} ${typeof ethosLevelStars === 'function' ? ethosLevelStars(level) : ''}`.trim();
   const imageDataUrls = await Promise.all(cards.map(card =>
     card._imageDataUrl ? Promise.resolve(card._imageDataUrl) : fetchImageDataUrl(card.image_prompt)
   ));
   cards.forEach((card,idx) => {
-    if (idx>0) doc.addPage();
-    let y=22;
-    doc.setFillColor(...teal); doc.rect(0,0,pageW,12,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...white);
-    doc.text(t('pdfHeader'),marginL,8);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8);
-    doc.text((t('ctx_'+ctx)||ctx)+' · '+(t('level_'+level)||level)+' · Ethos Studio',pageW-marginR,8,{align:'right'});
-    doc.setFont('helvetica','bold'); doc.setFontSize(18); doc.setTextColor(...teal);
+    if (idx>0) doc.addPage(isA5 ? 'a5' : 'a4', 'portrait');
+    let y = isA5 ? 16 : 22;
+    const headerH = isA5 ? 10 : 12;
+    doc.setFillColor(...teal); doc.rect(0,0,pageW,headerH,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(isA5 ? 8 : 9); doc.setTextColor(...white);
+    doc.text(t('pdfHeader'),marginL,isA5 ? 6.5 : 8);
+    doc.setFont('helvetica','normal'); doc.setFontSize(isA5 ? 7 : 8);
+    doc.text((t('ctx_'+ctx)||ctx)+' · '+levelLabel+' · Ethos Studio',pageW-marginR,isA5 ? 6.5 : 8,{align:'right'});
+    doc.setFont('helvetica','bold'); doc.setFontSize(titleSize); doc.setTextColor(...teal);
     const titleLines = doc.splitTextToSize(card.title||'',contentW);
-    doc.text(titleLines,marginL,y); y+=titleLines.length*8+4;
+    doc.text(titleLines,marginL,y); y+=titleLines.length*(isA5?6:8)+4;
     doc.setDrawColor(...tealBorder); doc.setLineWidth(0.4);
-    doc.line(marginL,y,pageW-marginR,y); y+=6;
-    doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(...darkGrey);
+    doc.line(marginL,y,pageW-marginR,y); y+=isA5?4:6;
+    doc.setFont('helvetica','normal'); doc.setFontSize(bodySize); doc.setTextColor(...darkGrey);
     const storyLines = doc.splitTextToSize(card.story||'',contentW);
-    doc.text(storyLines,marginL,y); y+=storyLines.length*5.5+6;
+    doc.text(storyLines,marginL,y); y+=storyLines.length*(isA5?4.5:5.5)+6;
     const qLines = doc.splitTextToSize(card.closing_question||'',contentW-12);
-    const qBoxH = qLines.length*6+10;
+    const qBoxH = qLines.length*(isA5?5:6)+10;
     doc.setFillColor(...blueLight); doc.setLineWidth(0);
     doc.roundedRect(marginL,y,contentW,qBoxH,2,2,'F');
     doc.setFillColor(...blueBorder); doc.rect(marginL,y,3,qBoxH,'F');
-    doc.setFont('helvetica','bolditalic'); doc.setFontSize(11); doc.setTextColor(24,95,165);
+    doc.setFont('helvetica','bolditalic'); doc.setFontSize(qSize); doc.setTextColor(24,95,165);
     doc.text(qLines,marginL+8,y+7); y+=qBoxH+6;
     const fqLines=[t('fq1'),t('fq2')];
-    const fqBoxH=fqLines.length*7+10;
+    const fqBoxH=fqLines.length*(isA5?6:7)+10;
     doc.setFillColor(...tealLight); doc.roundedRect(marginL,y,contentW,fqBoxH,2,2,'F');
     doc.setFillColor(...teal); doc.rect(marginL,y,3,fqBoxH,'F');
-    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(...teal);
-    fqLines.forEach((q,i)=>doc.text(q,marginL+8,y+8+i*7)); y+=fqBoxH+6;
+    doc.setFont('helvetica','bold'); doc.setFontSize(qSize); doc.setTextColor(...teal);
+    fqLines.forEach((q,i)=>doc.text(q,marginL+8,y+8+i*(isA5?6:7))); y+=fqBoxH+6;
 
     if (Array.isArray(card.values) && card.values.length) {
-      doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...midGrey);
+      doc.setFont('helvetica','normal'); doc.setFontSize(isA5 ? 8 : 9); doc.setTextColor(...midGrey);
       doc.text((lang==='nl'?'Waarden: ':'Values: ')+card.values.join(' · '), marginL, y);
-      y += 8;
+      y += isA5 ? 6 : 8;
     }
     if (card.facilitator_tip) {
-      doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.setTextColor(...midGrey);
+      doc.setFont('helvetica','italic'); doc.setFontSize(isA5 ? 8 : 9); doc.setTextColor(...midGrey);
       const tipLines = doc.splitTextToSize((lang==='nl'?'Tip begeleider: ':'Facilitator tip: ')+card.facilitator_tip, contentW);
       doc.text(tipLines, marginL, y);
-      y += tipLines.length * 4.5 + 4;
+      y += tipLines.length * (isA5 ? 3.5 : 4.5) + 4;
     }
 
-    const remainH=pageH-y-18, imgH=Math.max(remainH,60);
+    const remainH=pageH-y-14, imgH=Math.max(remainH, isA5 ? 35 : 60);
     let embedded=false;
     if (imageDataUrls[idx]) {
       try {
@@ -1120,11 +1136,11 @@ async function renderCardToPDF(cards) {
       doc.roundedRect(marginL,y,contentW,imgH,3,3,'FD');
       doc.setDrawColor(180,180,180); doc.setLineWidth(0.3);
       doc.roundedRect(marginL+3,y+3,contentW-6,imgH-6,2,2,'D');
-      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(...midGrey);
+      doc.setFont('helvetica','normal'); doc.setFontSize(isA5 ? 8 : 10); doc.setTextColor(...midGrey);
       doc.text(t('pdfImgText'),pageW/2,y+imgH/2-4,{align:'center'});
-      doc.setFontSize(8); doc.text(t('pdfImgSub'),pageW/2,y+imgH/2+4,{align:'center'});
+      doc.setFontSize(isA5 ? 7 : 8); doc.text(t('pdfImgSub'),pageW/2,y+imgH/2+4,{align:'center'});
     }
-    if (card.image_prompt) {
+    if (card.image_prompt && !isA5) {
       doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(160,160,160);
       const ps=card.image_prompt.length>120?card.image_prompt.substring(0,120)+'…':card.image_prompt;
       doc.text('Prompt: '+ps,marginL,pageH-10,{maxWidth:contentW});
@@ -1135,7 +1151,8 @@ async function renderCardToPDF(cards) {
     doc.text(t('pdfFooter'),marginL,pageH-10);
     doc.text(`${idx+1} / ${cards.length}`,pageW-marginR,pageH-10,{align:'right'});
   });
-  doc.save(((cards[0].title||'ethos_studio').toLowerCase().replace(/[^a-z0-9]+/g,'_').substring(0,40))+'.pdf');
+  const base=(cards[0].title||'ethos_studio').toLowerCase().replace(/[^a-z0-9]+/g,'_').substring(0,40);
+  doc.save(base+(isA5?'_a5':'')+'.pdf');
 }
 function renderExisting() {
   document.getElementById('existing').innerHTML = CASES[lang].map((c,i)=>`
@@ -1146,7 +1163,7 @@ function renderExisting() {
       <div class="ex-body">
         <p class="ex-text">${c.text}</p>
         <div class="ex-q">${c.question}</div>
-        <div class="tags">${c.level ? `<span class="tag" style="background:var(--blue-bg);color:var(--blue);border-color:#85B7EB">${t('level_'+c.level)}</span>` : ''}${c.values.map(v=>`<span class="tag">${v}</span>`).join('')}</div>
+        <div class="tags">${c.level ? `<span class="level-badge" style="font-size:11px"><span class="level-badge-label">${t('level_'+c.level)}</span><span class="level-stars">${ethosLevelStars(c.level)}</span></span>` : ''}${c.values.map(v=>`<span class="tag">${v}</span>`).join('')}</div>
         <div style="margin-top:0.75rem;font-size:13px;font-weight:600;color:var(--teal)">${t('fq1')} &nbsp;·&nbsp; ${t('fq2')}</div>
       </div>
     </div>`).join('');

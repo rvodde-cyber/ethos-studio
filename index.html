@@ -4,6 +4,12 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ethos Studio — Gesprekskaarten</title>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#0F6E56"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="Ethos Studio"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <link rel="stylesheet" href="ethos-common.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,6 +19,7 @@
       --teal: #0F6E56; --teal-bg: #E1F5EE; --teal-border: #5DCAA5;
       --blue: #185FA5; --blue-bg: #E6F1FB;
       --amber-bg: #FAEEDA; --amber: #633806;
+      --complexity: #993556; --complexity-bg: #f5e8ed; --complexity-border: #d4a0b3;
       --radius: 12px; --radius-sm: 8px;
     }
     body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
@@ -68,8 +75,40 @@
     .level-btn strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 2px; }
     .level-btn span { font-size: 11px; }
     .level-btn:hover { border-color: rgba(0,0,0,0.2); }
-    .level-btn.active { background: var(--blue-bg); border-color: #85B7EB; color: #0C447C; }
-    .level-btn.active strong { color: #0C447C; }
+
+    .about { max-width: 900px; margin: 0 auto; padding: 0 1.25rem 1.5rem; }
+    .about-inner { display: grid; gap: 1.25rem; }
+    .about-block {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 1.5rem 1.75rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    .about-block h2 { font-family: 'Playfair Display', serif; font-size: 1.35rem; margin-bottom: 0.5rem; }
+    .about-lead { font-size: 0.9rem; color: var(--muted); line-height: 1.65; margin-bottom: 1.25rem; }
+    .mv-flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    @media (max-width: 720px) { .mv-flow { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 420px) { .mv-flow { grid-template-columns: 1fr; } }
+    .mv-step {
+      text-align: center; padding: 0.75rem 0.5rem; border-radius: var(--radius-sm);
+      background: #f8f8f6; border: 1px solid var(--border);
+    }
+    .mv-step strong { display: block; font-size: 13px; color: var(--teal); margin-bottom: 4px; }
+    .mv-step span { font-size: 11px; color: var(--muted); line-height: 1.45; display: block; }
+    .complexity-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    @media (max-width: 720px) { .complexity-grid { grid-template-columns: 1fr; } }
+    .complexity-card {
+      padding: 1rem; border-radius: var(--radius-sm);
+      border: 1px solid var(--complexity-border); background: var(--complexity-bg);
+    }
+    .complexity-card h3 { font-size: 14px; color: var(--complexity); margin-bottom: 0.15rem; }
+    .complexity-card p { font-size: 12px; color: var(--muted); line-height: 1.55; }
+    .how-steps { margin: 0; padding-left: 1.2rem; font-size: 14px; line-height: 1.7; }
+    .how-steps li { margin-bottom: 0.45rem; }
+    .cta-scroll { text-align: center; padding: 0.5rem 1.25rem 0; }
+    .cta-scroll a {
+      display: inline-block; padding: 10px 20px; background: var(--teal); color: white;
+      border-radius: var(--radius-sm); text-decoration: none; font-weight: 600; font-size: 14px;
+    }
+    .cta-scroll a:hover { background: #0a5240; }
 
     textarea, input[type="password"] {
       width: 100%; border: 1px solid var(--border); border-radius: var(--radius-sm);
@@ -156,6 +195,55 @@
   </div>
 </section>
 
+<section class="about" id="over-ethos">
+  <div class="about-inner">
+    <article class="about-block">
+      <h2 data-i18n="mvTitle">Moreel Vakmanschap</h2>
+      <p class="about-lead" data-i18n="mvLead">Ethos Studio maakt gesprekskaarten voor moreel beraad. Het lastigste is vaak niet kiezen, maar zien dat er een moreel aspect speelt. Het model Moreel Vakmanschap helpt die bewustwording:</p>
+      <div class="mv-flow">
+        <div class="mv-step"><strong data-i18n="mv1t">Zien</strong><span data-i18n="mv1d">Het morele aspect herkennen</span></div>
+        <div class="mv-step"><strong data-i18n="mv2t">Voelen</strong><span data-i18n="mv2d">De spanning en emotie benoemen</span></div>
+        <div class="mv-step"><strong data-i18n="mv3t">Wegen</strong><span data-i18n="mv3d">Waarden en belangen afwegen</span></div>
+        <div class="mv-step"><strong data-i18n="mv4t">Handelen</strong><span data-i18n="mv4d">Een keuze maken en uitvoeren</span></div>
+        <div class="mv-step"><strong data-i18n="mv5t">Volhouden</strong><span data-i18n="mv5d">De complexiteit blijven dragen</span></div>
+      </div>
+    </article>
+
+    <article class="about-block">
+      <h2 data-i18n="complexTitle">Complexiteit van dilemma's</h2>
+      <p class="about-lead" data-i18n="complexLead">Niet elk dilemma is even groot. Kim Meijer onderscheidt drie niveaus — durf de spanning niet plat te slaan met simpele regels.</p>
+      <div class="complexity-grid">
+        <div class="complexity-card">
+          <div class="level-stars" aria-hidden="true">★☆☆</div>
+          <h3 data-i18n="level_micro">Micro</h3>
+          <p data-i18n="complexMicro">Directe keuze op de werkvloer; twee duidelijke waarden; bekende betrokkenen.</p>
+        </div>
+        <div class="complexity-card">
+          <div class="level-stars" aria-hidden="true">★★☆</div>
+          <h3 data-i18n="level_meso">Meso</h3>
+          <p data-i18n="complexMeso">Persoonlijke waarden botsen met organisatieregels; meerdere stakeholders.</p>
+        </div>
+        <div class="complexity-card">
+          <div class="level-stars" aria-hidden="true">★★★</div>
+          <h3 data-i18n="level_macro">Macro</h3>
+          <p data-i18n="complexMacro">Structureel conflict: beleid, wetgeving, cultuur; geen eenduidige uitkomst.</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="about-block">
+      <h2 data-i18n="howTitle">Zo maak je een kaart</h2>
+      <ol class="how-steps">
+        <li data-i18n="how1">Beschrijf een situatie in 2–3 zinnen en kies sector en complexiteitsniveau.</li>
+        <li data-i18n="how2">Genereer de kaart met je eigen Claude API-key (± €0,01 per kaart).</li>
+        <li data-i18n="how3">Kopieer de Firefly-prompt, maak optioneel een foto, en exporteer als PDF (A4 of A5).</li>
+      </ol>
+    </article>
+  </div>
+</section>
+
+<p class="cta-scroll"><a href="#start-form" data-i18n="ctaMake">Maak je eigen kaart ↓</a></p>
+
 <main class="main">
   <form class="card" id="start-form" onsubmit="startGenerate(event)">
     <h2 data-i18n="formTitle">Nieuwe gesprekskaart</h2>
@@ -180,14 +268,17 @@
       <div class="level-grid">
         <button type="button" class="level-btn" data-level="micro" onclick="setLevel('micro', this)">
           <strong data-i18n="level_micro">Micro</strong>
+          <span class="level-btn-stars" aria-hidden="true">★☆☆</span>
           <span data-i18n="level_micro_hint">Individuele keuze op de werkvloer</span>
         </button>
         <button type="button" class="level-btn active" data-level="meso" onclick="setLevel('meso', this)">
           <strong data-i18n="level_meso">Meso</strong>
+          <span class="level-btn-stars" aria-hidden="true">★★☆</span>
           <span data-i18n="level_meso_hint">Organisatie en belangen</span>
         </button>
         <button type="button" class="level-btn" data-level="macro" onclick="setLevel('macro', this)">
           <strong data-i18n="level_macro">Macro</strong>
+          <span class="level-btn-stars" aria-hidden="true">★★★</span>
           <span data-i18n="level_macro_hint">Maatschappelijk en systemisch</span>
         </button>
       </div>
@@ -250,6 +341,7 @@
 
 <footer>Ethos Studio · Lectoraat Ethisch Werken · Fontys HRM en TP · Comenius Innovatieproject</footer>
 
+<script src="ethos-common.js"></script>
 <script>
 const T = {
   nl: {
@@ -265,6 +357,23 @@ const T = {
     level_meso: 'Meso', level_meso_hint: 'Organisatie en belangen',
     level_macro: 'Macro', level_macro_hint: 'Maatschappelijk en systemisch',
     levelHint: 'Bepaalt de scherpte van het dilemma en de begeleiderstip op de kaart.',
+    mvTitle: 'Moreel Vakmanschap',
+    mvLead: 'Ethos Studio maakt gesprekskaarten voor moreel beraad. Het lastigste is vaak niet kiezen, maar zien dat er een moreel aspect speelt. Het model Moreel Vakmanschap helpt die bewustwording:',
+    mv1t: 'Zien', mv1d: 'Het morele aspect herkennen',
+    mv2t: 'Voelen', mv2d: 'De spanning en emotie benoemen',
+    mv3t: 'Wegen', mv3d: 'Waarden en belangen afwegen',
+    mv4t: 'Handelen', mv4d: 'Een keuze maken en uitvoeren',
+    mv5t: 'Volhouden', mv5d: 'De complexiteit blijven dragen',
+    complexTitle: 'Complexiteit van dilemma\'s',
+    complexLead: 'Niet elk dilemma is even groot. Kim Meijer onderscheidt drie niveaus — durf de spanning niet plat te slaan met simpele regels.',
+    complexMicro: 'Directe keuze op de werkvloer; twee duidelijke waarden; bekende betrokkenen.',
+    complexMeso: 'Persoonlijke waarden botsen met organisatieregels; meerdere stakeholders.',
+    complexMacro: 'Structureel conflict: beleid, wetgeving, cultuur; geen eenduidige uitkomst.',
+    howTitle: 'Zo maak je een kaart',
+    how1: 'Beschrijf een situatie in 2–3 zinnen en kies sector en complexiteitsniveau.',
+    how2: 'Genereer de kaart met je eigen Claude API-key (± €0,01 per kaart).',
+    how3: 'Kopieer de Firefly-prompt, maak optioneel een foto, en exporteer als PDF (A4 of A5).',
+    ctaMake: 'Maak je eigen kaart ↓',
     topicLabel: 'De situatie (2–3 zinnen)',
     topicPlaceholder: 'Omschrijf kort wie betrokken is, wat er speelt en waar de spanning zit…',
     topicHint: 'Bijv.: een verpleegkundige ziet dat een collega een fout maakt, maar wil de sfeer niet verstoren.',
@@ -307,6 +416,23 @@ const T = {
     level_meso: 'Meso', level_meso_hint: 'Organisation and interests',
     level_macro: 'Macro', level_macro_hint: 'Societal and systemic',
     levelHint: 'Shapes the sharpness of the dilemma and the facilitator tip on the card.',
+    mvTitle: 'Moral Craftsmanship',
+    mvLead: 'Ethos Studio creates conversation cards for moral deliberation. The hardest part is often not choosing, but seeing that a moral dimension is at play. The Moral Craftsmanship model supports that awareness:',
+    mv1t: 'See', mv1d: 'Recognise the moral aspect',
+    mv2t: 'Feel', mv2d: 'Name the tension and emotion',
+    mv3t: 'Weigh', mv3d: 'Balance values and interests',
+    mv4t: 'Act', mv4d: 'Make and carry out a choice',
+    mv5t: 'Sustain', mv5d: 'Hold the complexity over time',
+    complexTitle: 'Complexity of dilemmas',
+    complexLead: 'Not every dilemma is equally large. Kim Meijer distinguishes three levels — resist flattening the tension with simple rules.',
+    complexMicro: 'Direct choice on the workfloor; two clear values; known stakeholders.',
+    complexMeso: 'Personal values clash with organisational rules; multiple stakeholders.',
+    complexMacro: 'Structural conflict: policy, legislation, culture; no single right answer.',
+    howTitle: 'How to make a card',
+    how1: 'Describe a situation in 2–3 sentences and choose sector and complexity level.',
+    how2: 'Generate the card with your own Claude API key (about €0.01 per card).',
+    how3: 'Copy the Firefly prompt, optionally create an image, and export as PDF (A4 or A5).',
+    ctaMake: 'Make your own card ↓',
     topicLabel: 'The situation (2–3 sentences)',
     topicPlaceholder: 'Briefly describe who is involved, what is happening and where the tension lies…',
     topicHint: 'E.g.: a nurse sees a colleague make a mistake but does not want to disrupt the team atmosphere.',
@@ -365,6 +491,7 @@ function setLang(l) {
     const k = el.getAttribute('data-i18n-placeholder');
     if (T[lang][k] !== undefined) el.placeholder = T[lang][k];
   });
+  if (typeof ethosUpdateLevelButtons === 'function') ethosUpdateLevelButtons();
 }
 
 function setCtx(c, btn) {
