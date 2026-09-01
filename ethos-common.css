@@ -1,0 +1,47 @@
+/* Ethos Studio — shared styles */
+:root {
+  --complexity: #993556;
+  --complexity-bg: #f5e8ed;
+  --complexity-border: #d4a0b3;
+}
+
+.level-stars {
+  color: var(--complexity);
+  letter-spacing: 1px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.level-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+  background: var(--complexity-bg);
+  color: var(--complexity);
+  border: 1px solid var(--complexity-border);
+}
+
+.level-badge-label { white-space: nowrap; }
+
+.level-btn .level-btn-stars {
+  display: block;
+  margin: 4px 0 2px;
+  font-size: 11px;
+}
+
+.level-btn.active {
+  background: var(--complexity-bg) !important;
+  border-color: var(--complexity-border) !important;
+  color: var(--complexity) !important;
+}
+
+.level-btn.active strong { color: var(--complexity) !important; }
+
+.complexity-card .level-stars {
+  font-size: 14px;
+  margin-bottom: 0.35rem;
+}
